@@ -17,7 +17,7 @@ def extract_features(df):
 
     # Numerical Features
     numeric_df = df.select_dtypes(include=['int64', 'float64'])
-    if not  wqwnumeric_df.empty:
+    if not  numeric_df.empty:
         features['num_mean'] = numeric_df.mean().mean()
         features['num_std'] = numeric_df.std().mean()
         features['num_min'] = numeric_df.min().mean()

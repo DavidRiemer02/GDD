@@ -120,5 +120,7 @@ if __name__ == "__main__":
     train_multiple_models(real_data_folder, fake_data_folder, 500, 100, 20)
     train_multiple_models(real_data_folder, fake_data_folder, 1000, 250, 5)
     train_multiple_models(real_data_folder, fake_data_folder, 2000, 1000, 5)
+    train_multiple_models(real_data_folder, fake_data_folder, 2000, 1000, 50)
+
 
     print("Training Completed!")

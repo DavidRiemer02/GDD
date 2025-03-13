@@ -144,6 +144,6 @@ class GAN:
         final_generated_data = np.column_stack((generated_data[:, :len(self.numerical_columns)], decoded_categorical))
         new_df = pd.DataFrame(final_generated_data, columns=self.numerical_columns + self.categorical_columns)
         
-        save_path = f"TrainingData/fakedata/{self.base_name}_generated.csv"
+        save_path = f"TrainingData/fakedata/{self.base_name}_GANgenerated.csv"
         new_df.to_csv(save_path, index=False)
         print(f"Generated data saved to '{save_path}'")

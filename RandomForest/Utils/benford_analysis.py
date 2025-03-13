@@ -55,5 +55,5 @@ def visualize_benford_law(csv_file):
         
         plt.show()
 
-csv_file = "TrainingData/fakeData/chatGPT_Benford_s_Law_Dataset.csv"
-visualize_benford_law(csv_file)
+#csv_file = "TrainingData/fakeData/chatGPT_Benford_s_Law_Dataset.csv"
+#visualize_benford_law(csv_file)
