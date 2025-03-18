@@ -1,2 +1,0 @@
-Main-Class: de.unimarburg.generateddatasetdetector.MetanomeMain
-Class-Path: lib/HyFD-1.2-SNAPSHOT.jar lib/HyUCC-1.2-SNAPSHOT.jar lib/BINDER-1.2-SNAPSHOT.jar
