@@ -1,9 +1,13 @@
 import os
+import sys
 import subprocess
 import glob
 import argparse
 from RandomForest.Utils.cleanCSV import clean_csv_quotes
 from RandomForest.MultipleRandomForestTraining import GeneratedDatasetDetector
+
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "RandomForest")))
 
 # ---- Configuration ---- #
 java_exe = "C:\\Users\\David\\.jdks\\openjdk-18.0.2.1\\bin\\java"  # Full path to Java

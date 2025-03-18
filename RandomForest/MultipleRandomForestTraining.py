@@ -7,8 +7,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import skew, kurtosis, entropy
 from glob import glob
-from .Utils.benford_analysis import benford_deviation as bd
-from .Utils.zipf_analysis import zipf_correlation as zc
+from RandomForest.Utils.benford_analysis import benford_deviation as bd
+from RandomForest.Utils.zipf_analysis import zipf_correlation as zc
+
 
 
 class GeneratedDatasetDetector:

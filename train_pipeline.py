@@ -1,7 +1,9 @@
 import os
 import subprocess
 import glob
-from RandomForest.Utils.cleanCSV import clean_csv_quotes 
+from RandomForest.Utils.cleanCSV import clean_csv_quotes
+import sys
+
 
 # ---- Configuration ---- #
 java_exe = "C:\\Users\\David\\.jdks\\openjdk-18.0.2.1\\bin\\java"  # Full path to Java
@@ -9,7 +11,8 @@ base_dir = "TrainingData"
 data_types = ["fakeData", "realData"]  # Subdirectories in TrainingData
 metanome_jar = "generatedDatasetDetector.jar"  # Update this path
 java_memory = "-Xmx8G"  # Adjust if needed
-
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "RandomForest")))
 
 # ---- Helper Functions ---- #
 def clean_csv_in_place(file_path):
@@ -67,7 +70,7 @@ def train_random_forest_models():
     """Triggers the model training script for Random Forest."""
     print(f"🚀 Training multiple Random Forest models...")
     try:
-        subprocess.run(["python3", "RandomForest/MultipleRandomForestTraining.py"], check=True)
+        subprocess.run(["python3", "-m", "RandomForest.MultipleRandomForestTraining"], check=True)
         print(f"✅ Model training completed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"❌ Error during model training: {e}")
