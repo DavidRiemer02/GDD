@@ -54,12 +54,15 @@ class GeneratedDatasetDetector:
 
             num_columns = data.get("NumberOfColumns", 1)  # Avoid division by zero
 
+            scaling_factor = 5  # Adjust weight for importance
+
+
             return {
                 "fds_ratio": data.get("FDs_count", 0) / num_columns,
                 "uccs_ratio": data.get("UCCs_count", 0) / num_columns,
                 "inds_ratio": data.get("INDs_count", 0) / num_columns,
                 "max_fd_length_norm": data.get("Max_FD_Length", 0) / num_columns,
-                "fds_count": data.get("FDs_count", 0),
+                "fds_count": data.get("FDs_count", 0) * scaling_factor,
                 "uccs_count": data.get("UCCs_count", 0),
                 "inds_count": data.get("INDs_count", 0),
                 "max_fd_length": data.get("Max_FD_Length", 0)

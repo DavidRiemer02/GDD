@@ -20,8 +20,6 @@ def clean_csv_in_place(file_path):
     temp_output = file_path + ".tmp"
     clean_csv_quotes(file_path, temp_output)  # Call with both input and output paths
     os.replace(temp_output, file_path)  # Overwrite original file
-    print(f"✅ Cleaned in-place: {file_path}")
-
 
 def clean_all_csv_files(directory):
     """Recursively cleans all CSV files in a directory and its subdirectories."""

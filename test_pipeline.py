@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "RandomF
 
 # ---- Configuration ---- #
 java_exe = "C:\\Users\\David\\.jdks\\openjdk-18.0.2.1\\bin\\java"  # Full path to Java
-test_base_dir = "TestData/realData"  # Test dataset directory (change for realData if needed)
+test_base_dir = "TestData/fakeData"  # Test dataset directory (change for realData if needed)
 metanome_jar = "generatedDatasetDetector.jar"  # JAR file path
 java_memory = "-Xmx8G"  # Adjust memory as needed
 

@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 # ✅ Load the trained Random Forest model
-model_path = "models/randomForest/random_forest_s2000_n1000_d5.pkl"
+model_path = r"models/randomForest/random_forest_s5000_n1000_d50.pkl"
 rf_classifier = joblib.load(model_path)
 
 # ✅ Define feature names based on the complete set of extracted features (Statistical + Metanome raw & ratio)
