@@ -10130,3 +10130,5 @@ MetanomeData/trainingRealData/students_grading_data.csv
 MetanomeData/trainingRealData/students_performance_data_cleaned.csv
 MetanomeData/trainingRealData/user_behavior_dataset_original.csv
 MetanomeData/uniprot/uniprot_1001r_223c.csv
+Metanome/src/main/resources
+generatedDatasetDetector.jar
