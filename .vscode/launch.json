@@ -1,0 +1,44 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+    
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Application",
+            "request": "launch",
+            "mainClass": "de.unimarburg.generateddatasetdetector.Application",
+            "projectName": "application"
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "de.unimarburg.generateddatasetdetector.Main",
+            "projectName": "application"
+        },
+        {
+            "type": "java",
+            "name": "MetanomeMain",
+            "request": "launch",
+            "mainClass": "de.unimarburg.generateddatasetdetector.MetanomeMain",
+            "projectName": "application",
+            "args": "--input-file TrainingData/fakeData/BenfordZipsDatasets"
+        },
+        {
+            "type": "java",
+            "name": "ZipsBenfordMain",
+            "request": "launch",
+            "mainClass": "de.unimarburg.generateddatasetdetector.ZipsBenfordMain",
+            "projectName": "application"
+        }
+    ]
+}
