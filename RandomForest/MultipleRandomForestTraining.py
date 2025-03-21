@@ -9,6 +9,7 @@ from scipy.stats import skew, kurtosis, entropy
 from glob import glob
 from RandomForest.Utils.benford_analysis import benford_deviation as bd
 from RandomForest.Utils.zipf_analysis import zipf_correlation as zc
+from sklearn.model_selection import GridSearchCV
 
 
 
@@ -62,7 +63,7 @@ class GeneratedDatasetDetector:
                 "uccs_ratio": data.get("UCCs_count", 0) / num_columns,
                 "inds_ratio": data.get("INDs_count", 0) / num_columns,
                 "max_fd_length_norm": data.get("Max_FD_Length", 0) / num_columns,
-                "fds_count": data.get("FDs_count", 0) * scaling_factor,
+                "fds_count": data.get("FDs_count", 0),
                 "uccs_count": data.get("UCCs_count", 0),
                 "inds_count": data.get("INDs_count", 0),
                 "max_fd_length": data.get("Max_FD_Length", 0)
@@ -202,6 +203,7 @@ class GeneratedDatasetDetector:
 if __name__ == "__main__":
     detector = GeneratedDatasetDetector()
     param_grid = [
+        (500, 25, 5),
         (500, 100, 10),    # Small dataset setup
         (2000, 500, 20),   # Medium dataset setup
         (5000, 1000, 50),  # Large dataset setup

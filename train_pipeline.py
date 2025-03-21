@@ -10,7 +10,7 @@ java_exe = "C:\\Users\\David\\.jdks\\openjdk-18.0.2.1\\bin\\java"  # Full path t
 base_dir = "TrainingData"
 data_types = ["fakeData", "realData"]  # Subdirectories in TrainingData
 metanome_jar = "generatedDatasetDetector.jar"  # Update this path
-java_memory = "-Xmx8G"  # Adjust if needed
+java_memory = "-Xmx8G"
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "RandomForest")))
 
@@ -77,7 +77,7 @@ def train_random_forest_models():
 # ---- Main Pipeline ---- #
 def main():
     """Main pipeline that processes datasets, extracts dependencies, and trains models."""
-    print("🚀 Starting full dataset processing and model training pipeline ...")
+    print("---Starting full dataset processing and model training pipeline ...---")
     
     for data_type in data_types:
         data_dir = os.path.join(base_dir, data_type)

@@ -45,7 +45,7 @@ if real_means is not None and fake_means is not None:
     # Plot the feature averages with a log scale
     plt.figure(figsize=(14, 7))
     sns.barplot(x='Feature', y='Real', data=avg_df, color="lightblue", label="Real Data")
-    sns.barplot(x='Feature', y='Fake', data=avg_df, color="salmon", label="Fake Data")
+    sns.barplot(x='Feature', y='Fake', data=avg_df, color="pink", label="Fake Data")
 
     plt.xticks(rotation=90)  # Rotate feature names for better readability
     plt.ylabel("Average Feature Value (Log Scale)")

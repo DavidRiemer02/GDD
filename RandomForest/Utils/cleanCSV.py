@@ -16,9 +16,7 @@ def clean_csv_quotes(input_file_path, output_file_path):
                 # Ensure all columns are cleaned and quotes remain intact
                 cleaned_row = [col.strip() for col in row]  # Strip spaces
                 writer.writerow(cleaned_row)
-
         print(f"✅ Cleaned CSV saved to: {output_file_path}")
 
     except Exception as e:
         print(f"❌ Error processing '{input_file_path}': {e}")
-
