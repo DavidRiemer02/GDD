@@ -42,12 +42,21 @@ plt.figure(figsize=(12, 6))
 x = np.arange(len(df["Feature"]))
 width = 0.4
 
-plt.bar(x - width/2, df["Real Avg"], width, label="Real", color="pink")
-plt.bar(x + width/2, df["Fake Avg"], width, label="Fake", color="lightblue")
+plt.bar(x - width/2, df["Real Avg"], width, label="Real", color="lightblue")
+plt.bar(x + width/2, df["Fake Avg"], width, label="Fake", color="pink")
 
 plt.xticks(ticks=x, labels=df["Feature"], rotation=45)
 plt.xlabel("Features")
-plt.ylabel("Average Count")
+plt.yscale("log")
+plt.ylabel("Average Count (log scale)")
 plt.title("Distribution of Dependencies per Feature (Real vs Fake)")
 plt.legend()
+diff_plot_path = "metanome_dependencies_difference.png"
+plt.savefig(diff_plot_path, dpi=300)
+plt.tight_layout()
 plt.show()
+
+# Print the differences
+df["Difference"] = df["Real Avg"] - df["Fake Avg"]
+df = df.sort_values(by="Difference", ascending=False)
+print(df)

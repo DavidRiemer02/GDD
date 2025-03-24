@@ -90,7 +90,7 @@ class GeneratedDatasetDetector:
             return subfolder_paths[0]
         return None
 
-    def train_multiple_models(self, real_data_folder, fake_data_folder, sample_size, n_estimators, max_depth):
+    def train_multiple_models(self, real_data_folder, fake_data_folder, sample_size, n_estimators, max_depth, use_grid_search=False):
         """Train Random Forest models on real and fake datasets, iterating over subdirectories in metanomeResults."""
         feature_list = []
 
@@ -98,7 +98,11 @@ class GeneratedDatasetDetector:
             csv_files = glob(os.path.join(folder, "**", "*.csv"), recursive=True)
 
             for csv_file in csv_files:
-                df = pd.read_csv(csv_file)
+                try:
+                    df = pd.read_csv(csv_file, on_bad_lines='skip', engine='python')
+                except Exception as e:
+                    print(f"⚠️ Could not read {csv_file}: {e}")
+                    continue
 
                 if len(df) > sample_size:
                     df = df.sample(n=sample_size, random_state=42)
@@ -126,12 +130,31 @@ class GeneratedDatasetDetector:
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        rf_classifier = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=42)
-        rf_classifier.fit(X_scaled, y)
+        if use_grid_search:
+            param_grid = {
+                'n_estimators': [100, 200, 500],
+                'max_depth': [10, 25, 50],
+                'min_samples_split': [2, 5, 10]
+            }
 
-        joblib.dump(rf_classifier, os.path.join(self.model_dir, f"random_forest_s{sample_size}_n{n_estimators}_d{max_depth}.pkl"))
-        joblib.dump(scaler, os.path.join(self.model_dir, f"scaler_s{sample_size}_n{n_estimators}_d{max_depth}.pkl"))
-        print(f"✅ Trained Random Forest (Samples={sample_size}, Trees={n_estimators}, Depth={max_depth})")
+            rf = RandomForestClassifier(random_state=42)
+            grid_search = GridSearchCV(rf, param_grid, cv=5, n_jobs=-1, scoring='accuracy')
+            grid_search.fit(X_scaled, y)
+            best_model = grid_search.best_estimator_
+
+            model_name = "gridsearch_best_model"
+            joblib.dump(best_model, os.path.join(self.model_dir, f"random_forest_grid_search.pkl"))
+            joblib.dump(scaler, os.path.join(self.model_dir, f"scaler_grid_search.pkl"))
+            print(f"GridSearchCV completed. Best model saved as 'random_forest_grid_search.pkl'")
+            print(f"🔎 Best Parameters: {grid_search.best_params_}")
+        else:
+            rf_classifier = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=42)
+            rf_classifier.fit(X_scaled, y)
+            joblib.dump(rf_classifier, os.path.join(self.model_dir, f"random_forest_s{sample_size}_n{n_estimators}_d{max_depth}.pkl"))
+            joblib.dump(scaler, os.path.join(self.model_dir, f"scaler_s{sample_size}_n{n_estimators}_d{max_depth}.pkl"))
+            print(f"Trained Random Forest (Samples={sample_size}, Trees={n_estimators}, Depth={max_depth})")
+
+
 
     def classify_new_datasets(self, base_folder):
         """Classifies all datasets in a given folder (TestData/realData or TestData/fakeData)."""
@@ -237,6 +260,9 @@ if __name__ == "__main__":
     print(f"📊 Total datasets in fakeData: {total_fake_datasets}")
 
     print(f"Total datasets across both: {total_real_datasets + total_fake_datasets}")
+
+    detector.train_multiple_models("TrainingData/realData", "TrainingData/fakeData", 1000, 0, 0, use_grid_search=True)
+
 
     # Train models with different settings
     for sample_size, n_estimators, max_depth in param_grid:

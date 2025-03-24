@@ -5,18 +5,21 @@ import glob
 import argparse
 from RandomForest.Utils.cleanCSV import clean_csv_quotes
 from RandomForest.MultipleRandomForestTraining import GeneratedDatasetDetector
+import pandas as pd
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "RandomForest")))
 
 # ---- Configuration ---- #
 java_exe = "C:\\Users\\David\\.jdks\\openjdk-18.0.2.1\\bin\\java"  # Full path to Java
-test_base_dir = "TestData/fakeData"  # Test dataset directory (change for realData if needed)
+test_base_dir_real = "TestData/realData"  
+test_base_dir_fake = "TestData/fakeData"
 metanome_jar = "generatedDatasetDetector.jar"  # JAR file path
-java_memory = "-Xmx8G"  # Adjust memory as needed
+java_memory = "-Xmx32G"  # Adjust memory as needed
 
 # Results directory
-test_result_dir = os.path.join(test_base_dir, "metanomeResults")
+test_result_dir_real = os.path.join(test_base_dir_real, "metanomeResults")
+test_result_dir_fake = os.path.join(test_base_dir_fake, "metanomeResults")
 
 
 # ---- Helper Functions ---- #
@@ -77,23 +80,20 @@ def test_pipeline():
     print("🚀 Starting test dataset processing ...")
 
     # Step 1: Ensure metanomeResults directory exists
-    os.makedirs(test_result_dir, exist_ok=True)
+    os.makedirs(test_result_dir_real, exist_ok=True)
 
     # Step 2: Clean CSV files recursively
-    clean_all_csv_files(test_base_dir)
+    clean_all_csv_files(test_base_dir_real)
 
     # Step 3: Run Metanome on each CSV file if results are missing
-    csv_files = glob.glob(os.path.join(test_base_dir, "**", "*.csv"), recursive=True)
+    csv_files = glob.glob(os.path.join(test_base_dir_real, "**", "*.csv"), recursive=True)
     
     for csv_file in csv_files:
-        run_metanome_if_needed(csv_file, test_result_dir)
+        run_metanome_if_needed(csv_file, test_result_dir_real)
 
     # Step 4: Classify datasets using GeneratedDatasetDetector
     detector = GeneratedDatasetDetector()
-    detector.classify_new_datasets(test_base_dir)
-
-    print("✅ Test pipeline completed successfully.")
-
+    detector.classify_new_datasets(test_base_dir_real)
 
 if __name__ == "__main__":
     test_pipeline()

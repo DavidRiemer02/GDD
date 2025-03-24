@@ -22,7 +22,11 @@ def compute_average_features(folder):
         json_path = detector.find_metanome_json(os.path.splitext(csv_file)[0], os.path.join(folder, "metanomeResults"))
 
         if json_path:
-            df = pd.read_csv(dataset_path)
+            try:
+                df = pd.read_csv(dataset_path, on_bad_lines='warn')  # or 'skip'
+            except Exception as e:
+                print(f"⚠️ Skipping file {csv_file} due to read error: {e}")
+                continue
             features = detector.extract_combined_features(df, json_path)
             feature_list.append(features)
     
@@ -63,3 +67,25 @@ if real_means is not None and fake_means is not None:
     plt.show()
 else:
     print("⚠️ Could not compute feature averages. Check dataset paths and formats.")
+
+
+# Compute absolute difference between real and fake averages
+avg_df['Difference'] = avg_df['Real'] - avg_df['Fake']
+
+# Plot the difference
+plt.figure(figsize=(14, 7))
+sns.barplot(x='Feature', y='Difference', data=avg_df, palette="coolwarm")
+
+plt.xticks(rotation=90)
+plt.ylabel("Absolute Difference (Real - Fake)")
+plt.xlabel("Feature")
+plt.title("Absolute Difference: Real - Fake (Feature Averages)")
+plt.axhline(0, color='black', linestyle='--')
+plt.ylim(bottom=-6500000, top=1000000)
+plt.tight_layout()
+
+# Save the plot
+diff_plot_path = "feature_averages_difference.png"
+plt.savefig(diff_plot_path, dpi=300)
+print(f"📊 Saved difference plot to: {diff_plot_path}")
+plt.show()

@@ -70,7 +70,6 @@ def extract_features_from_csv(csv_file, json_file=None):
     for key, value in features.items():
         print(f"{key}: {value:.6f}")
 
-# Example usage
-csv_path = "TestData/fakeData/data-LzAcLkrRxo5zBlB1iAJXy.csv"
-json_path = "TestData/fakeData/metanomeResults/data-LzAcLkrRxo5zBlB1iAJXy_Results.json"  # Optional
+csv_path = "TestData/realData/titanic.csv"
+json_path = "TestData/realData/MetanomeResults/titanic_Results.json"  # Optional
 extract_features_from_csv(csv_path, json_path)

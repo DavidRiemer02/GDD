@@ -10133,3 +10133,6 @@ MetanomeData/uniprot/uniprot_1001r_223c.csv
 Metanome/
 generatedDatasetDetector.jar
 MetanomeData/
+feature_averages_difference.png
+feature_averages_log.png
+metanome_dependencies_difference.png
