@@ -23,11 +23,11 @@ def clean_csv_in_place(file_path):
 
 def clean_all_csv_files(directory):
     """Recursively cleans all CSV files in a directory and its subdirectories."""
-    print(f"🔍 Cleaning CSV files in {directory} ...")
+    print(f"Cleaning CSV files in {directory} ...")
     csv_files = glob.glob(os.path.join(directory, "**", "*.csv"), recursive=True)
     
     for csv_file in csv_files:
-        print(f"📂 Cleaning {csv_file} ...")
+        print(f"Cleaning {csv_file} ...")
         clean_csv_in_place(csv_file)
 
 
@@ -47,11 +47,11 @@ def run_metanome_if_needed(dataset_path, result_dir):
 
     # Skip if JSON already exists
     if os.path.exists(result_file):
-        print(f"✅ Metanome result already exists at {result_file}, skipping.")
+        print(f"Metanome result already exists at {result_file}, skipping.")
         return
 
     # Run Metanome if JSON does not exist
-    print(f"🚀 Running Metanome on {dataset_path} ...")
+    print(f"Running Metanome on {dataset_path} ...")
     command = [
         java_exe, java_memory, "-jar", metanome_jar,
         "--input-file", dataset_path,
@@ -59,19 +59,19 @@ def run_metanome_if_needed(dataset_path, result_dir):
     ]
     try:
         subprocess.run(command, check=True)
-        print(f"✅ Metanome finished for {dataset_path}, output saved: {result_file}")
+        print(f"Metanome finished for {dataset_path}, output saved: {result_file}")
     except subprocess.CalledProcessError as e:
-        print(f"❌ Error running Metanome on {dataset_path}: {e}")
+        print(f"Error running Metanome on {dataset_path}: {e}")
 
 
 def train_random_forest_models():
     """Triggers the model training script for Random Forest."""
-    print(f"🚀 Training multiple Random Forest models...")
+    print(f"Training multiple Random Forest models...")
     try:
         subprocess.run(["python3", "-m", "RandomForest.MultipleRandomForestTraining"], check=True)
-        print(f"✅ Model training completed successfully.")
+        print(f"Model training completed successfully.")
     except subprocess.CalledProcessError as e:
-        print(f"❌ Error during model training: {e}")
+        print(f"Error during model training: {e}")
 
 
 # ---- Main Pipeline ---- #

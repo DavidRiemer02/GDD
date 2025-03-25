@@ -2,10 +2,17 @@ import os
 import sys
 import subprocess
 import glob
-import argparse
 from RandomForest.Utils.cleanCSV import clean_csv_quotes
 from RandomForest.MultipleRandomForestTraining import GeneratedDatasetDetector
-import pandas as pd
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix
+)
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "RandomForest")))
@@ -57,11 +64,11 @@ def run_metanome_if_needed(dataset_path, result_dir):
 
     # Skip if JSON already exists
     if os.path.exists(result_file):
-        print(f"✅ Metanome result already exists at {result_file}, skipping.")
+        print(f"Metanome result already exists at {result_file}, skipping.")
         return
 
     # Run Metanome if JSON does not exist
-    print(f"🚀 Running Metanome on {dataset_path} ...")
+    print(f"Running Metanome on {dataset_path} ...")
     command = [
         java_exe, java_memory, "-jar", metanome_jar,
         "--input-file", dataset_path,
@@ -69,31 +76,58 @@ def run_metanome_if_needed(dataset_path, result_dir):
     ]
     try:
         subprocess.run(command, check=True)
-        print(f"✅ Metanome finished for {dataset_path}, output saved: {result_file}")
+        print(f"Metanome finished for {dataset_path}, output saved: {result_file}")
     except subprocess.CalledProcessError as e:
-        print(f"❌ Error running Metanome on {dataset_path}: {e}")
-
+        print(f"Error running Metanome on {dataset_path}: {e}")
+def get_all_csv_files(base_dir):
+    return glob.glob(os.path.join(base_dir, "**", "*.csv"), recursive=True)
 
 # ---- Test Pipeline ---- #
+from sklearn.metrics import accuracy_score
+
 def test_pipeline():
-    """Main pipeline for processing test datasets, extracting dependencies, and classifying."""
-    print("🚀 Starting test dataset processing ...")
+    print("Starting full test pipeline with metrics...")
 
-    # Step 1: Ensure metanomeResults directory exists
-    os.makedirs(test_result_dir_real, exist_ok=True)
+    for base_dir, result_dir in [(test_base_dir_real, test_result_dir_real),
+                                 (test_base_dir_fake, test_result_dir_fake)]:
+        os.makedirs(result_dir, exist_ok=True)
+        clean_all_csv_files(base_dir)
+        for csv_file in get_all_csv_files(base_dir):
+            run_metanome_if_needed(csv_file, result_dir)
 
-    # Step 2: Clean CSV files recursively
-    clean_all_csv_files(test_base_dir_real)
-
-    # Step 3: Run Metanome on each CSV file if results are missing
-    csv_files = glob.glob(os.path.join(test_base_dir_real, "**", "*.csv"), recursive=True)
-    
-    for csv_file in csv_files:
-        run_metanome_if_needed(csv_file, test_result_dir_real)
-
-    # Step 4: Classify datasets using GeneratedDatasetDetector
     detector = GeneratedDatasetDetector()
-    detector.classify_new_datasets(test_base_dir_real)
+
+    # Get predictions only (no probabilities)
+    real_preds = detector.classify_new_datasets(test_base_dir_real)
+    fake_preds = detector.classify_new_datasets(test_base_dir_fake)
+
+    # Ground truth and predictions
+    y_true = [1] * len(real_preds) + [0] * len(fake_preds)  # 1 = real, 0 = fake
+    y_pred = [1 if p == "real" else 0 for p in real_preds + fake_preds]
+
+    # Metrics
+    acc = accuracy_score(y_true, y_pred)
+    prec = precision_score(y_true, y_pred)
+    rec = recall_score(y_true, y_pred)
+    f1 = f1_score(y_true, y_pred)
+    cm = confusion_matrix(y_true, y_pred)
+
+    print("\n Classification Report:")
+    print(f"Accuracy:  {acc:.4f}")
+    print(f"Precision: {prec:.4f}")
+    print(f"Recall:    {rec:.4f}")
+    print(f"F1-score:  {f1:.4f}")
+    print(f"\n Confusion Matrix:\n{cm}")
+
+    # Optional: visualize confusion matrix
+    plt.figure(figsize=(5, 4))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                xticklabels=["Fake", "Real"], yticklabels=["Fake", "Real"])
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.title("Confusion Matrix")
+    plt.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
     test_pipeline()

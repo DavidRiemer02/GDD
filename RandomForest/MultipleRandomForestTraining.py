@@ -156,70 +156,71 @@ class GeneratedDatasetDetector:
 
 
 
-    def classify_new_datasets(self, base_folder):
-        """Classifies all datasets in a given folder (TestData/realData or TestData/fakeData)."""
+    def classify_new_datasets(self, base_folder, model_name="random_forest_grid_search.pkl"):
+        """Classifies all datasets in a given folder and returns a list of predicted labels ('Real'/'Fake')."""
+        predictions = []
+
         try:
             if not os.path.exists(base_folder):
-                print(f"❌ Error: The folder '{base_folder}' does not exist.")
-                return
+                print(f"Error: The folder '{base_folder}' does not exist.")
+                return predictions
 
-            # Identify data type (realData or fakeData)
+            # Identify data type
             if "realData" in base_folder:
                 data_type = "realData"
             elif "fakeData" in base_folder:
                 data_type = "fakeData"
             else:
-                print(f"⚠️ Could not determine dataset type (realData/fakeData) for '{base_folder}'. Skipping...")
-                return
+                print(f"Could not determine dataset type for '{base_folder}'. Skipping...")
+                return predictions
 
-            # Find all CSV datasets in the provided folder (including subfolders)
+            # Find all CSV datasets
             csv_files = glob(os.path.join(base_folder, "**", "*.csv"), recursive=True)
             if not csv_files:
-                print(f"⚠️ No CSV datasets found in '{base_folder}'.")
-                return
+                print(f"No CSV datasets found in '{base_folder}'.")
+                return predictions
 
-            # Find Metanome results folder
             metanome_results_path = os.path.join(base_folder, "metanomeResults")
-
-            print(f"🔍 Found {len(csv_files)} datasets in '{base_folder}'. Starting classification...")
+            print(f"Found {len(csv_files)} datasets in '{base_folder}'. Starting classification...")
 
             for csv_file in csv_files:
                 df = pd.read_csv(csv_file)
                 if df.empty:
-                    print(f"⚠️ The dataset '{csv_file}' is empty and cannot be classified.")
+                    print(f"Skipping empty dataset: {csv_file}")
                     continue
 
                 dataset_name = os.path.splitext(os.path.basename(csv_file))[0]
-
-                # Find corresponding Metanome JSON
                 json_path = self.find_metanome_json(dataset_name, metanome_results_path)
 
                 if not json_path:
-                    print(f"⚠️ No Metanome JSON found for '{dataset_name}'. Skipping...")
+                    print(f"No Metanome JSON for '{dataset_name}', skipping.")
                     continue
 
-                # Extract features and classify
                 features = self.extract_combined_features(df, json_path)
-                model_files = glob(os.path.join(self.model_dir, "random_forest_*.pkl"))
-                results = {}
 
-                for model_file in model_files:
-                    model_name = os.path.basename(model_file).replace(".pkl", "")
-                    scaler_file = model_file.replace("random_forest", "scaler")
-                    model = joblib.load(model_file)
-                    scaler = joblib.load(scaler_file)
-                    X_scaled = scaler.transform(features)
-                    prediction = model.predict(X_scaled)[0]
-                    label = "Real" if prediction == 1 else "Fake"
-                    results[model_name] = label
+                # Load selected model and its scaler
+                model_path = os.path.join(self.model_dir, model_name)
+                scaler_path = os.path.join(self.model_dir, model_name.replace("random_forest", "scaler"))
 
-                # Print classification results
-                print(f"✅ Classification Results for {csv_file}:")
-                for model, label in results.items():
-                    print(f"  {model}: {label}")
+                if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+                    print(f"Model or scaler missing: {model_path} / {scaler_path}")
+                    continue
+
+                model = joblib.load(model_path)
+                scaler = joblib.load(scaler_path)
+
+                X_scaled = scaler.transform(features)
+                prediction = model.predict(X_scaled)[0]
+                label = "real" if prediction == 1 else "fake"
+
+                predictions.append(label)
+
+                print(f"{csv_file} classified as {label}")
 
         except Exception as e:
-            print(f"⚠️ Error during classification: {e}")
+            print(f"Error during classification: {e}")
+
+        return predictions
 
 
 
@@ -251,13 +252,13 @@ if __name__ == "__main__":
     total_real_datasets = real_csv_count + real_json_count
     total_fake_datasets = fake_csv_count + fake_json_count
 
-    print(f"📂 Number of CSV datasets in realData: {real_csv_count}")
-    print(f"📂 Number of Metanome JSONs in realData: {real_json_count}")
-    print(f"📊 Total datasets in realData: {total_real_datasets}")
+    print(f"Number of CSV datasets in realData: {real_csv_count}")
+    print(f"Number of Metanome JSONs in realData: {real_json_count}")
+    print(f"Total datasets in realData: {total_real_datasets}")
 
-    print(f"📂 Number of CSV datasets in fakeData: {fake_csv_count}")
-    print(f"📂 Number of Metanome JSONs in fakeData: {fake_json_count}")
-    print(f"📊 Total datasets in fakeData: {total_fake_datasets}")
+    print(f"Number of CSV datasets in fakeData: {fake_csv_count}")
+    print(f"Number of Metanome JSONs in fakeData: {fake_json_count}")
+    print(f"Total datasets in fakeData: {total_fake_datasets}")
 
     print(f"Total datasets across both: {total_real_datasets + total_fake_datasets}")
 
