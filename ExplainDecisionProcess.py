@@ -4,8 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.tree import plot_tree
-from RandomForest.MultipleRandomForestTraining import GeneratedDatasetDetector
-
+from RandomForest.MultipleRandomForestTraining import *
 
 def explain_decision_process(model_path, dataset_path):
     """
@@ -64,6 +63,6 @@ def explain_decision_process(model_path, dataset_path):
 
 # Example usage
 model_path = "models/randomForest/random_forest_s5000_n1000_d50.pkl"
-dataset_path = "TestData/fakeData/data-kFyc2cTUki-kacHEIvy4j.csv"
+dataset_path = "TestData/realData/meets.csv"
 
 explain_decision_process(model_path, dataset_path)

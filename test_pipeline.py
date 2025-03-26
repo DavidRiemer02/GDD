@@ -119,7 +119,7 @@ def test_pipeline():
     print(f"F1-score:  {f1:.4f}")
     print(f"\n Confusion Matrix:\n{cm}")
 
-    # Optional: visualize confusion matrix
+    #Visualize confusion matrix
     plt.figure(figsize=(5, 4))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
                 xticklabels=["Fake", "Real"], yticklabels=["Fake", "Real"])

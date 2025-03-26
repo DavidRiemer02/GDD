@@ -10,7 +10,13 @@ from glob import glob
 from RandomForest.Utils.benford_analysis import benford_deviation as bd
 from RandomForest.Utils.zipf_analysis import zipf_correlation as zc
 from sklearn.model_selection import GridSearchCV
+import time
+from datetime import datetime
+import csv
 
+performance_dir = "performance"
+os.makedirs(performance_dir, exist_ok=True)
+train_log_path = os.path.join(performance_dir, "training_performance_log.csv")
 
 
 class GeneratedDatasetDetector:
@@ -130,6 +136,8 @@ class GeneratedDatasetDetector:
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
+        start_time = time.time()
+
         if use_grid_search:
             param_grid = {
                 'n_estimators': [100, 200, 500],
@@ -142,18 +150,59 @@ class GeneratedDatasetDetector:
             grid_search.fit(X_scaled, y)
             best_model = grid_search.best_estimator_
 
-            model_name = "gridsearch_best_model"
-            joblib.dump(best_model, os.path.join(self.model_dir, f"random_forest_grid_search.pkl"))
-            joblib.dump(scaler, os.path.join(self.model_dir, f"scaler_grid_search.pkl"))
-            print(f"GridSearchCV completed. Best model saved as 'random_forest_grid_search.pkl'")
+            model_name = "random_forest_grid_search.pkl"
+            joblib.dump(best_model, os.path.join(self.model_dir, model_name))
+            joblib.dump(scaler, os.path.join(self.model_dir, "scaler_grid_search.pkl"))
+            print(f"GridSearchCV completed. Best model saved as '{model_name}'")
             print(f"🔎 Best Parameters: {grid_search.best_params_}")
+
+            duration_ms = int((time.time() - start_time) * 1000)
+
+            with open(train_log_path, mode='a', newline='', encoding='utf-8') as f:
+                writer = csv.writer(f)
+                if f.tell() == 0:
+                    writer.writerow([
+                        "Timestamp", "Use_GridSearch", "Sample_Size", "n_Estimators", "Max_Depth",
+                        "Best_Params", "Train_Time_ms", "Model_Name"
+                    ])
+                writer.writerow([
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    use_grid_search,
+                    sample_size,
+                    grid_search.best_params_['n_estimators'],
+                    grid_search.best_params_['max_depth'],
+                    json.dumps(grid_search.best_params_),
+                    duration_ms,
+                    model_name
+                ])
+
         else:
+            model_name = f"random_forest_s{sample_size}_n{n_estimators}_d{max_depth}.pkl"
             rf_classifier = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=42)
             rf_classifier.fit(X_scaled, y)
-            joblib.dump(rf_classifier, os.path.join(self.model_dir, f"random_forest_s{sample_size}_n{n_estimators}_d{max_depth}.pkl"))
+            joblib.dump(rf_classifier, os.path.join(self.model_dir, model_name))
             joblib.dump(scaler, os.path.join(self.model_dir, f"scaler_s{sample_size}_n{n_estimators}_d{max_depth}.pkl"))
             print(f"Trained Random Forest (Samples={sample_size}, Trees={n_estimators}, Depth={max_depth})")
 
+            duration_ms = int((time.time() - start_time) * 1000)
+
+            with open(train_log_path, mode='a', newline='', encoding='utf-8') as f:
+                writer = csv.writer(f)
+                if f.tell() == 0:
+                    writer.writerow([
+                        "Timestamp", "Use_GridSearch", "Sample_Size", "n_Estimators", "Max_Depth",
+                        "Best_Params", "Train_Time_ms", "Model_Name"
+                    ])
+                writer.writerow([
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    use_grid_search,
+                    sample_size,
+                    n_estimators,
+                    max_depth,
+                    "-",
+                    duration_ms,
+                    model_name
+                ])
 
 
     def classify_new_datasets(self, base_folder, model_name="random_forest_grid_search.pkl"):
@@ -227,6 +276,7 @@ class GeneratedDatasetDetector:
 if __name__ == "__main__":
     detector = GeneratedDatasetDetector()
     param_grid = [
+        (500, 1, 20),
         (500, 25, 5),
         (500, 100, 10),    # Small dataset setup
         (2000, 500, 20),   # Medium dataset setup

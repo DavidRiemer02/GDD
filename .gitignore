@@ -10131,8 +10131,9 @@ MetanomeData/trainingRealData/students_performance_data_cleaned.csv
 MetanomeData/trainingRealData/user_behavior_dataset_original.csv
 MetanomeData/uniprot/uniprot_1001r_223c.csv
 Metanome/
-generatedDatasetDetector.jar
 MetanomeData/
 feature_averages_difference.png
 feature_averages_log.png
 metanome_dependencies_difference.png
+performance/metanome_performance_log.csv
+performance/training_performance_log.csv

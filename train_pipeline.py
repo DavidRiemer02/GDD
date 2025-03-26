@@ -1,67 +1,87 @@
 import os
 import subprocess
 import glob
-from RandomForest.Utils.cleanCSV import clean_csv_quotes
 import sys
-
+import pandas as pd
+from datetime import datetime
+from RandomForest.Utils.cleanCSV import clean_csv_quotes
 
 # ---- Configuration ---- #
-java_exe = "C:\\Users\\David\\.jdks\\openjdk-18.0.2.1\\bin\\java"  # Full path to Java
+java_exe = "C:\\Users\\David\\.jdks\\openjdk-18.0.2.1\\bin\\java"
 base_dir = "TrainingData"
-data_types = ["fakeData", "realData"]  # Subdirectories in TrainingData
-metanome_jar = "generatedDatasetDetector.jar"  # Update this path
-java_memory = "-Xmx8G"
+data_types = ["fakeData", "realData"]
+metanome_jar = "generatedDatasetDetector.jar"
+java_memory = "-Xmx32G"
+
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "RandomForest")))
 
 # ---- Helper Functions ---- #
+def timestamp():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 def clean_csv_in_place(file_path):
-    """Cleans a CSV file in place by removing problematic quotes."""
     temp_output = file_path + ".tmp"
-    clean_csv_quotes(file_path, temp_output)  # Call with both input and output paths
-    os.replace(temp_output, file_path)  # Overwrite original file
+    clean_csv_quotes(file_path, temp_output)
+    os.replace(temp_output, file_path)
 
 def clean_all_csv_files(directory):
-    """Recursively cleans all CSV files in a directory and its subdirectories."""
-    print(f"Cleaning CSV files in {directory} ...")
+    print(f"[{timestamp()}] Cleaning CSV files in {directory} ...")
     csv_files = glob.glob(os.path.join(directory, "**", "*.csv"), recursive=True)
     
     for csv_file in csv_files:
-        print(f"Cleaning {csv_file} ...")
+        print(f"[{timestamp()}] Cleaning {csv_file} ...")
         clean_csv_in_place(csv_file)
 
+import time
+import csv
+
+performance_dir = "performance"
+os.makedirs(performance_dir, exist_ok=True)
+performance_log_path = os.path.join(performance_dir, "metanome_performance_log.csv")
 
 def run_metanome_if_needed(dataset_path, result_dir):
-    """Runs Metanome only if results do not already exist in the correct subfolder under metanomeResults."""
     base_name = os.path.basename(dataset_path).replace(".csv", "")
-
-    # Find subfolder relative to base directory (e.g., "BenfordZipsDatasets")
     relative_path = os.path.relpath(os.path.dirname(dataset_path), start=os.path.dirname(result_dir))
-
-    # Define correct result directory inside `metanomeResults/{subfolder}`
     metanome_result_folder = os.path.join(result_dir, relative_path)
     os.makedirs(metanome_result_folder, exist_ok=True)
 
-    # Define correct result file path
     result_file = os.path.join(metanome_result_folder, f"{base_name}_Results.json")
 
-    # Skip if JSON already exists
     if os.path.exists(result_file):
-        print(f"Metanome result already exists at {result_file}, skipping.")
+        return  # Skip if already exists
+
+    try:
+        file_size_mb = os.path.getsize(dataset_path) / (1024 * 1024)
+        df = pd.read_csv(dataset_path, nrows=5)
+        num_columns = df.shape[1]
+    except Exception as e:
+        print(f"[{timestamp()}] ⚠️ Failed to read {dataset_path} for metadata: {e}")
         return
 
-    # Run Metanome if JSON does not exist
-    print(f"Running Metanome on {dataset_path} ...")
+    # --- Run Metanome and time it ---
+    start_time = time.time()
     command = [
         java_exe, java_memory, "-jar", metanome_jar,
         "--input-file", dataset_path,
         "--output-file", result_file
     ]
+
     try:
         subprocess.run(command, check=True)
-        print(f"Metanome finished for {dataset_path}, output saved: {result_file}")
+        duration_ms = int((time.time() - start_time) * 1000)  # milliseconds
+
+        # ✅ Append to performance log CSV
+        with open(performance_log_path, mode='a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            if f.tell() == 0:  # Write header if file is empty
+                writer.writerow(["Timestamp", "Dataset", "Size_MB", "Columns", "Metanome_Time_ms", "Output"])
+            writer.writerow([
+                timestamp(), dataset_path, f"{file_size_mb:.2f}", num_columns, duration_ms, result_file
+            ])
+
     except subprocess.CalledProcessError as e:
-        print(f"Error running Metanome on {dataset_path}: {e}")
+        print(f"[{timestamp()}] ❌ Error running Metanome on {dataset_path}: {e}")
 
 
 def train_random_forest_models():
@@ -73,30 +93,22 @@ def train_random_forest_models():
     except subprocess.CalledProcessError as e:
         print(f"Error during model training: {e}")
 
-
 # ---- Main Pipeline ---- #
 def main():
-    """Main pipeline that processes datasets, extracts dependencies, and trains models."""
-    print("---Starting full dataset processing and model training pipeline ...---")
+    print(f"[{timestamp()}] --- Starting full dataset processing and model training pipeline ---")
     
     for data_type in data_types:
         data_dir = os.path.join(base_dir, data_type)
         result_dir = os.path.join(data_dir, "metanomeResults")
 
-        # Step 1: Clean CSV files recursively
         clean_all_csv_files(data_dir)
 
-        # Step 2: Run Metanome on each CSV file if results are missing
         csv_files = glob.glob(os.path.join(data_dir, "**", "*.csv"), recursive=True)
-        
         for csv_file in csv_files:
             run_metanome_if_needed(csv_file, result_dir)
 
-    # Step 3: Train models
-    train_random_forest_models()
-
-    print("✅ Pipeline completed successfully.")
-
+    train_random_forest_models()    
+    print(f"[{timestamp()}] ✅ Pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()
