@@ -34,8 +34,19 @@ class GeneratedDatasetDetector:
             features['num_std'] = numeric_df.std().mean()
             features['num_min'] = numeric_df.min().mean()
             features['num_max'] = numeric_df.max().mean()
-            features['num_skew'] = np.clip(skew(numeric_df, nan_policy='omit').mean(), -10, 10)
-            features['num_kurtosis'] = np.clip(kurtosis(numeric_df, nan_policy='omit').mean(), -10, 10)
+            valid_cols = numeric_df.columns[numeric_df.notna().sum() >= 3]
+            filtered_numeric_df = numeric_df[valid_cols]
+            if not filtered_numeric_df.empty:
+                skew_vals = skew(filtered_numeric_df, nan_policy='omit')
+                mean_skew = np.nanmean(skew_vals)
+                features['num_skew'] = np.clip(mean_skew, -10, 10)
+            else:
+                features['num_skew'] = 0
+            filtered_numeric_df = numeric_df[valid_cols]
+            if not filtered_numeric_df.empty:
+                features['num_kurtosis'] = np.clip(np.nanmean(kurtosis(filtered_numeric_df, nan_policy='omit')), -10, 10)
+            else:
+                features['num_kurtosis'] = 0            
             features['benford_mae'] = bd(numeric_df.stack())
         else:
             features.update(dict.fromkeys(['num_mean', 'num_std', 'num_min', 'num_max',
@@ -50,6 +61,16 @@ class GeneratedDatasetDetector:
             features['zipf_corr'] = zc(categorical_df.stack())
         else:
             features.update(dict.fromkeys(['num_categorical', 'cat_unique_ratio', 'cat_mode_freq', 'cat_entropy', 'zipf_corr'], 0))
+        
+        # Ratio of numerical vs. categorical columns
+        total_columns = df.shape[1]
+        num_numerical = len(numeric_df.columns)
+        num_categorical = len(categorical_df.columns)
+
+        if total_columns > 0:
+            features['num_vs_cat_ratio'] = num_numerical / (num_categorical + 1e-5)  # Avoid division by zero
+        else:
+            features['num_vs_cat_ratio'] = 0
 
         return pd.DataFrame([features])
 
@@ -205,8 +226,14 @@ class GeneratedDatasetDetector:
                 ])
 
 
+    import csv
+    from datetime import datetime
+
+    classification_log_path = os.path.join("performance", "classification_log.csv")
+    os.makedirs("performance", exist_ok=True)
+
     def classify_new_datasets(self, base_folder, model_name="random_forest_grid_search.pkl"):
-        """Classifies all datasets in a given folder and returns a list of predicted labels ('Real'/'Fake')."""
+        """Classifies all datasets in a folder and logs classification metadata."""
         predictions = []
 
         try:
@@ -223,7 +250,6 @@ class GeneratedDatasetDetector:
                 print(f"Could not determine dataset type for '{base_folder}'. Skipping...")
                 return predictions
 
-            # Find all CSV datasets
             csv_files = glob(os.path.join(base_folder, "**", "*.csv"), recursive=True)
             if not csv_files:
                 print(f"No CSV datasets found in '{base_folder}'.")
@@ -232,42 +258,73 @@ class GeneratedDatasetDetector:
             metanome_results_path = os.path.join(base_folder, "metanomeResults")
             print(f"Found {len(csv_files)} datasets in '{base_folder}'. Starting classification...")
 
-            for csv_file in csv_files:
-                df = pd.read_csv(csv_file)
-                if df.empty:
-                    print(f"Skipping empty dataset: {csv_file}")
-                    continue
+            with open(self.classification_log_path, mode='a', newline='', encoding='utf-8') as log_file:
+                writer = csv.writer(log_file)
+                if log_file.tell() == 0:
+                    writer.writerow([
+                        "Timestamp", "Dataset", "Type", "Size_MB", "Rows", "Columns",
+                        "Prediction", "Classification_Time_ms", "Model"
+                    ])
 
-                dataset_name = os.path.splitext(os.path.basename(csv_file))[0]
-                json_path = self.find_metanome_json(dataset_name, metanome_results_path)
+                for csv_file in csv_files:
+                    try:
+                        start_time = time.time()
 
-                if not json_path:
-                    print(f"No Metanome JSON for '{dataset_name}', skipping.")
-                    continue
+                        df = pd.read_csv(csv_file)
+                        if df.empty:
+                            print(f"Skipping empty dataset: {csv_file}")
+                            continue
 
-                features = self.extract_combined_features(df, json_path)
+                        dataset_name = os.path.splitext(os.path.basename(csv_file))[0]
+                        json_path = self.find_metanome_json(dataset_name, metanome_results_path)
 
-                # Load selected model and its scaler
-                model_path = os.path.join(self.model_dir, model_name)
-                scaler_path = os.path.join(self.model_dir, model_name.replace("random_forest", "scaler"))
+                        if not json_path:
+                            print(f"No Metanome JSON for '{dataset_name}', skipping.")
+                            continue
 
-                if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-                    print(f"Model or scaler missing: {model_path} / {scaler_path}")
-                    continue
+                        features = self.extract_combined_features(df, json_path)
 
-                model = joblib.load(model_path)
-                scaler = joblib.load(scaler_path)
+                        model_path = os.path.join(self.model_dir, model_name)
+                        scaler_path = os.path.join(self.model_dir, model_name.replace("random_forest", "scaler"))
 
-                X_scaled = scaler.transform(features)
-                prediction = model.predict(X_scaled)[0]
-                label = "real" if prediction == 1 else "fake"
+                        if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+                            print(f"Model or scaler missing: {model_path} / {scaler_path}")
+                            continue
 
-                predictions.append(label)
+                        model = joblib.load(model_path)
+                        scaler = joblib.load(scaler_path)
 
-                print(f"{csv_file} classified as {label}")
+                        X_scaled = scaler.transform(features)
+                        prediction = model.predict(X_scaled)[0]
+                        label = "real" if prediction == 1 else "fake"
+
+                        predictions.append(label)
+
+                        end_time = time.time()
+                        duration_ms = int((end_time - start_time) * 1000)
+                        file_size_mb = os.path.getsize(csv_file) / (1024 * 1024)
+                        num_rows, num_cols = df.shape
+
+                        # ✅ Write to CSV log
+                        writer.writerow([
+                            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            csv_file,
+                            data_type,
+                            f"{file_size_mb:.2f}",
+                            num_rows,
+                            num_cols,
+                            label,
+                            duration_ms,
+                            model_name
+                        ])
+
+                        print(f"{csv_file} classified as {label} in {duration_ms} ms.")
+
+                    except Exception as dataset_error:
+                        print(f"⚠️ Error classifying {csv_file}: {dataset_error}")
 
         except Exception as e:
-            print(f"Error during classification: {e}")
+            print(f"❌ Error during classification: {e}")
 
         return predictions
 

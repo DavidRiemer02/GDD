@@ -34,6 +34,7 @@ def visualize_first_decision_tree(model_path):
         'Most frequent category\'s percentage in each categorical column',
         'Entropy of categorical distributions',
         'Correlation with expected Zipfian distribution',
+        'Ratio of numerical to categorical columns',
         'Functional Dependencies Ratio', 'Unique Column Combinations Ratio',
         'Inclusion Dependencies Ratio', 'Max FD Length Normalized',
         'Functional Dependencies Count', 'Unique Column Combinations Count',

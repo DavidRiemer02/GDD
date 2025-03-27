@@ -48,42 +48,74 @@ def clean_all_csv_files(directory):
         clean_csv_in_place(csv_file)
 
 
+import os
+import time
+import csv
+import subprocess
+import pandas as pd
+from datetime import datetime
+
+# Define performance logging directory and file
+performance_dir = "performance"
+os.makedirs(performance_dir, exist_ok=True)
+performance_log_path = os.path.join(performance_dir, "metanome_performance_log.csv")
+
+# Define timestamp formatter
+def timestamp():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 def run_metanome_if_needed(dataset_path, result_dir):
-    """Runs Metanome only if results do not already exist in the correct subfolder under metanomeResults."""
+    """Run Metanome only if output does not already exist. Also logs performance info."""
     base_name = os.path.basename(dataset_path).replace(".csv", "")
-
-    # Find subfolder relative to test_base_dir (e.g., "BenfordZipsDatasets")
     relative_path = os.path.relpath(os.path.dirname(dataset_path), start=os.path.dirname(result_dir))
-
-    # Define correct result directory inside `metanomeResults/{subfolder}`
     metanome_result_folder = os.path.join(result_dir, relative_path)
     os.makedirs(metanome_result_folder, exist_ok=True)
 
-    # Define correct result file path
     result_file = os.path.join(metanome_result_folder, f"{base_name}_Results.json")
 
-    # Skip if JSON already exists
     if os.path.exists(result_file):
-        print(f"Metanome result already exists at {result_file}, skipping.")
+        print(f"[{timestamp()}] ✅ Metanome result already exists: {result_file}, skipping.")
         return
 
-    # Run Metanome if JSON does not exist
-    print(f"Running Metanome on {dataset_path} ...")
+    try:
+        file_size_mb = os.path.getsize(dataset_path) / (1024 * 1024)
+        df = pd.read_csv(dataset_path, nrows=5)
+        num_columns = df.shape[1]
+    except Exception as e:
+        print(f"[{timestamp()}] ⚠️ Failed to read {dataset_path} for metadata: {e}")
+        return
+
+    # Run Metanome and log time
+    print(f"[{timestamp()}] 🚀 Running Metanome on: {dataset_path}")
+    start_time = time.time()
     command = [
         java_exe, java_memory, "-jar", metanome_jar,
         "--input-file", dataset_path,
         "--output-file", result_file
     ]
+
     try:
         subprocess.run(command, check=True)
-        print(f"Metanome finished for {dataset_path}, output saved: {result_file}")
+        duration_ms = int((time.time() - start_time) * 1000)
+
+        # Write performance log
+        with open(performance_log_path, mode='a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            if f.tell() == 0:
+                writer.writerow(["Timestamp", "Dataset", "Size_MB", "Columns", "Metanome_Time_ms", "Output"])
+            writer.writerow([
+                timestamp(), dataset_path, f"{file_size_mb:.2f}", num_columns, duration_ms, result_file
+            ])
+
+        print(f"[{timestamp()}] ✅ Metanome completed in {duration_ms} ms")
+
     except subprocess.CalledProcessError as e:
-        print(f"Error running Metanome on {dataset_path}: {e}")
+        print(f"[{timestamp()}] ❌ Error running Metanome on {dataset_path}: {e}")
+
+
 def get_all_csv_files(base_dir):
     return glob.glob(os.path.join(base_dir, "**", "*.csv"), recursive=True)
 
-# ---- Test Pipeline ---- #
-from sklearn.metrics import accuracy_score
 
 def test_pipeline():
     print("Starting full test pipeline with metrics...")

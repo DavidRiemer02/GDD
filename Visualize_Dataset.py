@@ -44,6 +44,15 @@ def extract_features_from_csv(csv_file, json_file=None):
     else:
         features.update({key: 0 for key in ['num_categorical', 'cat_unique_ratio', 'cat_mode_freq', 
                                              'cat_entropy', 'zipf_corr']})
+    total_columns = df.shape[1]
+    num_numerical = len(numeric_df.columns)
+    num_categorical = len(categorical_df.columns)
+
+    if total_columns > 0:
+        features['num_vs_cat_ratio'] = num_numerical / (num_categorical + 1e-5)  # Avoid division by zero
+    else:
+        features['num_vs_cat_ratio'] = 0
+    
 
     # Metanome Dependency-Based Features (if JSON file is provided)
     if json_file:

@@ -22,6 +22,7 @@ feature_names = [
     'Most frequent category\'s percentage in each categorical column',
     'Entropy of categorical distributions',
     'Zipf correlation of categorical distributions',
+    'Ratio of numerical to categorical columns',
     
     # Metanome Dependency-Based Features (Normalized Ratios)
     'FDs ratio (FDs / Columns)',
