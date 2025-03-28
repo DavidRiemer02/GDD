@@ -4,7 +4,7 @@ import glob
 import sys
 import pandas as pd
 from datetime import datetime
-from RandomForest.Utils.cleanCSV import clean_csv_quotes
+from RandomForest.Utils.readlargeData import read_large_data
 
 # ---- Configuration ---- #
 java_exe = "C:\\Users\\David\\.jdks\\openjdk-18.0.2.1\\bin\\java"
@@ -22,12 +22,12 @@ def timestamp():
 
 def clean_csv_in_place(file_path):
     temp_output = file_path + ".tmp"
-    clean_csv_quotes(file_path, temp_output)
+    read_large_data(file_path, temp_output)
 
     if os.path.exists(temp_output):
         os.replace(temp_output, file_path)
     else:
-        print(f"❌ Skipped replacing {file_path}: cleaning failed or no output produced.")
+        print(f"Skipped replacing {file_path}: cleaning failed or no output produced.")
 
 
 def clean_all_csv_files(directory):
@@ -102,59 +102,22 @@ def train_random_forest_models():
     except subprocess.CalledProcessError as e:
         print(f"Error during model training: {e}")
 
-import random
-
-def sample_csv_with_chunks(csv_file, sample_size=5000, chunksize=1000):
-    reservoir = []
-    total_seen = 0
-
-    try:
-        for chunk in pd.read_csv(csv_file, chunksize=chunksize, on_bad_lines='skip', engine='python'):
-            for _, row in chunk.iterrows():
-                total_seen += 1
-                if len(reservoir) < sample_size:
-                    reservoir.append(row)
-                else:
-                    r = random.randint(0, total_seen - 1)
-                    if r < sample_size:
-                        reservoir[r] = row
-
-        if not reservoir:
-            print(f"[{timestamp()}] ⚠️ No valid rows sampled from {csv_file}")
-            return None
-
-        sampled_df = pd.DataFrame(reservoir)
-        return sampled_df
-
-    except Exception as e:
-        print(f"[{timestamp()}] ❌ Error sampling from {csv_file}: {e}")
-        return None
-
-
-# ---- Main Pipeline ---- #
+def get_all_csv_files(base_dir):
+    return glob.glob(os.path.join(base_dir, "**", "*.csv"), recursive=True)# ---- Main Pipeline ---- #
 def main():
-    print(f"[{timestamp()}] --- Starting full dataset processing and model training pipeline ---")
-    
+    print(f"[{timestamp()}] --- Starting full training dataset processing and model training pipeline ---")
+
     for data_type in data_types:
         data_dir = os.path.join(base_dir, data_type)
         result_dir = os.path.join(data_dir, "metanomeResults")
 
-        csv_files = glob.glob(os.path.join(data_dir, "**", "*.csv"), recursive=True)
-        for csv_file in csv_files:
-            try:
-                df = sample_csv_with_chunks(csv_file, sample_size=5000)
-                if df is not None:
-                    df.to_csv(csv_file, index=False)
-                    print(f"[{timestamp()}] Reduced to 5000 rows: {csv_file}")
-            except Exception as e:
-                print(f"[{timestamp()}] Could not reduce {csv_file}: {e}")
+        os.makedirs(result_dir, exist_ok=True)
         clean_all_csv_files(data_dir)
-        for csv_file in csv_files:
+        for csv_file in get_all_csv_files(data_dir):
             run_metanome_if_needed(csv_file, result_dir)
 
-    train_random_forest_models()    
-    print(f"[{timestamp()}] ✅ Pipeline completed successfully.")
-    
+    train_random_forest_models()
+    print(f"[{timestamp()}] ✅ Training pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

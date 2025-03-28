@@ -1,11 +1,23 @@
 from sdv.datasets.demo import download_demo
 
 real_data, metadata = download_demo(
-    modality='single_table',
-    dataset_name='fake_hotel_guests'
+    modality='multi_table',
+    dataset_name='fake_hotels'
 )
 
 from sdv.single_table import GaussianCopulaSynthesizer
+from sdv.multi_table import HMASynthesizer
+
+synthesizer = HMASynthesizer(metadata)
+synthesizer.fit(real_data)
+synthetic_data = synthesizer.sample(scale=2)
+
+synthetic_data['hotels'].to_csv('TrainingData/fakeData/sdv_hotel_data.csv')
+synthetic_data['guests'].to_csv('TrainingData/fakeData/sdv_guests_data.csv')
+
+
+
+
 
 synthesizer = GaussianCopulaSynthesizer(metadata)
 synthesizer.fit(real_data)

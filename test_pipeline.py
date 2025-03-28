@@ -2,7 +2,13 @@ import os
 import sys
 import subprocess
 import glob
-from RandomForest.Utils.cleanCSV import clean_csv_quotes
+import matplotlib.pyplot as plt
+import seaborn as sns
+import time
+import csv
+import pandas as pd
+from datetime import datetime
+from RandomForest.Utils.readlargeData import read_large_data
 from RandomForest.MultipleRandomForestTraining import GeneratedDatasetDetector
 from sklearn.metrics import (
     accuracy_score,
@@ -11,8 +17,7 @@ from sklearn.metrics import (
     f1_score,
     confusion_matrix
 )
-import matplotlib.pyplot as plt
-import seaborn as sns
+
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "RandomForest")))
@@ -33,7 +38,7 @@ test_result_dir_fake = os.path.join(test_base_dir_fake, "metanomeResults")
 def clean_csv_in_place(file_path):
     """Cleans a CSV file in place by removing problematic quotes."""
     temp_output = file_path + ".tmp"
-    clean_csv_quotes(file_path, temp_output)  # Call with both input and output paths
+    read_large_data(file_path, temp_output)  # Call with both input and output paths
     os.replace(temp_output, file_path)  # Overwrite original file
     print(f"✅ Cleaned in-place: {file_path}")
 
@@ -47,13 +52,6 @@ def clean_all_csv_files(directory):
         print(f"📂 Cleaning {csv_file} ...")
         clean_csv_in_place(csv_file)
 
-
-import os
-import time
-import csv
-import subprocess
-import pandas as pd
-from datetime import datetime
 
 # Define performance logging directory and file
 performance_dir = "performance"
@@ -120,12 +118,12 @@ def get_all_csv_files(base_dir):
 def test_pipeline():
     print("Starting full test pipeline with metrics...")
 
-    for base_dir, result_dir in [(test_base_dir_real, test_result_dir_real),
-                                 (test_base_dir_fake, test_result_dir_fake)]:
-        os.makedirs(result_dir, exist_ok=True)
-        clean_all_csv_files(base_dir)
-        for csv_file in get_all_csv_files(base_dir):
-            run_metanome_if_needed(csv_file, result_dir)
+    #for base_dir, result_dir in [(test_base_dir_real, test_result_dir_real),
+                                 #(test_base_dir_fake, test_result_dir_fake)]:
+        #os.makedirs(result_dir, exist_ok=True)
+        #clean_all_csv_files(base_dir)
+        #for csv_file in get_all_csv_files(base_dir):
+            #run_metanome_if_needed(csv_file, result_dir)
 
     detector = GeneratedDatasetDetector()
 

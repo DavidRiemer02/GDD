@@ -82,9 +82,6 @@ class GeneratedDatasetDetector:
 
             num_columns = data.get("NumberOfColumns", 1)  # Avoid division by zero
 
-            scaling_factor = 5  # Adjust weight for importance
-
-
             return {
                 "fds_ratio": data.get("FDs_count", 0) / num_columns,
                 "uccs_ratio": data.get("UCCs_count", 0) / num_columns,
@@ -229,7 +226,7 @@ class GeneratedDatasetDetector:
     import csv
     from datetime import datetime
 
-    classification_log_path = os.path.join("performance", "classification_log.csv")
+    classification_log_path = os.path.join("performance", "classification_log_sample.csv")
     os.makedirs("performance", exist_ok=True)
 
     def classify_new_datasets(self, base_folder, model_name="random_forest_grid_search.pkl"):

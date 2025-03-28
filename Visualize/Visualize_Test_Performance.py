@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load data
-df = pd.read_csv("performance/classification_log.csv")
+df = pd.read_csv("performance/classification_log_sample.csv")
 df.columns = df.columns.str.strip()
 
 # Define colors manually
@@ -32,12 +32,7 @@ plt.legend(title="Model")
 plt.grid(True)
 plt.tight_layout()
 
-#Label the maximum test time for each model
-for model in df["Model"].unique():
-    subset = df[df["Model"] == model]
-    max_time = subset["Classification_Time_ms"].max()
-    max_time_row = subset[subset["Classification_Time_ms"] == max_time]
-    plt.text(max_time_row["Size_MB"], max_time_row["Classification_Time_ms"], f"Max: {max_time:.0f} ms", ha="right")
+
 
 
 

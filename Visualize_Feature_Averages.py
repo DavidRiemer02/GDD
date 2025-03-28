@@ -57,6 +57,7 @@ if real_means is not None and fake_means is not None:
     plt.title("Feature Averages for Real vs Fake Data (Log Scale)")
     plt.yscale("log")  # Apply log scale to y-axis
     plt.legend()
+    plt.xticks(rotation=45)
     plt.tight_layout()
 
     # Save the visualization
