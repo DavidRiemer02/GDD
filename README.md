@@ -10,7 +10,6 @@
 ├── UserData/                 
 │   ├── realData/             # User-uploaded real datasets
 │   └── fakeData/             # User-uploaded fake datasets
-├── TrainingData/             # Real and fake datasets used to train the model
 ├── models/                   # Trained Random Forest classifiers
 ├── config.json               # Configuration file for paths and Metanome settings
 ├── GDD_Pipeline.ipynb        # Main Jupyter Notebook interface for using the detector
