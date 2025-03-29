@@ -5,12 +5,13 @@
 ---
 
 ## Project Structure
-├── UserData/ # Upload folder for real and fake datasets │ 
-    ├── realData/ 
-    └── fakeData/ 
-├── TrainingData/ # Datasets used for model training 
-├── models/ # Trained Random Forest classifiers 
-├── config.json # Configuration file for paths and Metanome settings 
-├── GDD_pipeline.ipynb # Jupyter notebook interface
+├── UserData/                  # Upload folder for real and fake datasets
+│   ├── realData/              # User-uploaded real datasets
+│   └── fakeData/              # User-uploaded fake datasets
+├── TrainingData/              # Real and fake datasets used to train the model
+├── models/                    # Trained Random Forest classifiers
+├── config.json                # Configuration file (paths, Metanome JAR, memory settings)
+├── GDD_Pipeline.ipynb         # Main Jupyter Notebook interface for using the detector
+
 
 Open GDD_pipeline.ipynb and follow the steps provided in the notebook
