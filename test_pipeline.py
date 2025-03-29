@@ -23,11 +23,18 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "RandomForest")))
 
 # ---- Configuration ---- #
-java_exe = "C:\\Users\\David\\.jdks\\openjdk-18.0.2.1\\bin\\java"  # Full path to Java
-test_base_dir_real = "TestData/realData"  
-test_base_dir_fake = "TestData/fakeData"
-metanome_jar = "generatedDatasetDetector.jar"  # JAR file path
-java_memory = "-Xmx32G"  # Adjust memory as needed
+import json
+
+# Load config from JSON
+with open("config.json", "r") as f:
+    config = json.load(f)
+
+# Access variables
+java_exe = config["java_exe"]
+test_base_dir_real = config["test_base_dir_real"]
+test_base_dir_fake = config["test_base_dir_fake"]
+metanome_jar = config["metanome_jar"]
+java_memory = config["java_memory"]
 
 # Results directory
 test_result_dir_real = os.path.join(test_base_dir_real, "metanomeResults")
@@ -40,16 +47,14 @@ def clean_csv_in_place(file_path):
     temp_output = file_path + ".tmp"
     read_large_data(file_path, temp_output)  # Call with both input and output paths
     os.replace(temp_output, file_path)  # Overwrite original file
-    print(f"✅ Cleaned in-place: {file_path}")
-
 
 def clean_all_csv_files(directory):
     """Recursively cleans all CSV files in a directory and its subdirectories."""
-    print(f"🔍 Cleaning CSV files in {directory} ...")
+    print(f"Cleaning CSV files in {directory} ...")
     csv_files = glob.glob(os.path.join(directory, "**", "*.csv"), recursive=True)
     
     for csv_file in csv_files:
-        print(f"📂 Cleaning {csv_file} ...")
+        print(f"Cleaning {csv_file} ...")
         clean_csv_in_place(csv_file)
 
 
@@ -118,12 +123,12 @@ def get_all_csv_files(base_dir):
 def test_pipeline():
     print("Starting full test pipeline with metrics...")
 
-    #for base_dir, result_dir in [(test_base_dir_real, test_result_dir_real),
-                                 #(test_base_dir_fake, test_result_dir_fake)]:
-        #os.makedirs(result_dir, exist_ok=True)
-        #clean_all_csv_files(base_dir)
-        #for csv_file in get_all_csv_files(base_dir):
-            #run_metanome_if_needed(csv_file, result_dir)
+    for base_dir, result_dir in [(test_base_dir_real, test_result_dir_real),
+                                 (test_base_dir_fake, test_result_dir_fake)]:
+        os.makedirs(result_dir, exist_ok=True)
+        clean_all_csv_files(base_dir)
+        for csv_file in get_all_csv_files(base_dir):
+            run_metanome_if_needed(csv_file, result_dir)
 
     detector = GeneratedDatasetDetector()
 
@@ -152,9 +157,8 @@ def test_pipeline():
     #Visualize confusion matrix
     plt.figure(figsize=(5, 4))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                annot_kws={"size": 18},
                 xticklabels=["Fake", "Real"], yticklabels=["Fake", "Real"])
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
     plt.title("Confusion Matrix")
     plt.tight_layout()
     plt.show()

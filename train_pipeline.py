@@ -117,7 +117,6 @@ def main():
             run_metanome_if_needed(csv_file, result_dir)
 
     train_random_forest_models()
-    print(f"[{timestamp()}] ✅ Training pipeline completed successfully.")
-
+    print(f"[{timestamp()}] --- Pipeline completed ---")
 if __name__ == "__main__":
     main()

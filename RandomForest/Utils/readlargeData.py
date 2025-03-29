@@ -16,8 +16,8 @@ def read_large_data(input_file, output_file_path, sample_size: int = 5000):
     print(f"Reading and processing: {input_file}")
     
     # Estimate total rows for progress bar
-    total_rows = sum(1 for _ in open(input_file, 'r', encoding='ISO-8859-1'))
-    csv_reader = pd.read_csv(input_file, chunksize=chunk_size, on_bad_lines='skip', engine='python', encoding='ISO-8859-1')
+    total_rows = sum(1 for _ in open(input_file, 'r', encoding='utf-8'))
+    csv_reader = pd.read_csv(input_file, chunksize=chunk_size, on_bad_lines='skip', engine='python', encoding='utf-8')
     
     final_chunks = []
     for chunk in tqdm(csv_reader, total=total_rows // chunk_size + 1, desc="Reading"):
