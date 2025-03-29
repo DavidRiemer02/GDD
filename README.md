@@ -1,4 +1,4 @@
-#GDD – Generated Dataset Detector
+# GDD – Generated Dataset Detector
 
 **GDD** is a machine learning-based framework that detects whether a tabular dataset is *real* or *synthetically generated*. It combines statistical analysis with structural dependency profiling (using Metanome) to extract discriminative features and uses a Random Forest classifier, optimized by GridSearch to make predictions.
 
