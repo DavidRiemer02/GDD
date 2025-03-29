@@ -131,37 +131,13 @@ def test_pipeline():
             run_metanome_if_needed(csv_file, result_dir)
 
     detector = GeneratedDatasetDetector()
+    detector.classify_new_datasets(test_base_dir_real)
+    #Delete Directory UserData/fakeData
+    os.rmdir("UserData/fakeData/metanomeResults")
+    os.rmdir("UserData/fakeData")
+    os.rmdir("UserData/metanomeResults")
 
-    # Get predictions only (no probabilities)
-    real_preds = detector.classify_new_datasets(test_base_dir_real)
-    fake_preds = detector.classify_new_datasets(test_base_dir_fake)
 
-    # Ground truth and predictions
-    y_true = [1] * len(real_preds) + [0] * len(fake_preds)  # 1 = real, 0 = fake
-    y_pred = [1 if p == "real" else 0 for p in real_preds + fake_preds]
-
-    # Metrics
-    acc = accuracy_score(y_true, y_pred)
-    prec = precision_score(y_true, y_pred)
-    rec = recall_score(y_true, y_pred)
-    f1 = f1_score(y_true, y_pred)
-    cm = confusion_matrix(y_true, y_pred)
-
-    print("\n Classification Report:")
-    print(f"Accuracy:  {acc:.4f}")
-    print(f"Precision: {prec:.4f}")
-    print(f"Recall:    {rec:.4f}")
-    print(f"F1-score:  {f1:.4f}")
-    print(f"\n Confusion Matrix:\n{cm}")
-
-    #Visualize confusion matrix
-    plt.figure(figsize=(5, 4))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
-                annot_kws={"size": 18},
-                xticklabels=["Fake", "Real"], yticklabels=["Fake", "Real"])
-    plt.title("Confusion Matrix")
-    plt.tight_layout()
-    plt.show()
-
+    
 if __name__ == "__main__":
     test_pipeline()
