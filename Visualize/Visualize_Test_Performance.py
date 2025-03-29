@@ -32,11 +32,6 @@ plt.legend(title="Model")
 plt.grid(True)
 plt.tight_layout()
 
-
-
-
-
-
 # Calculate average classification time per model
 avg_time_per_model = df.groupby("Model")["Classification_Time_ms"].mean().reset_index()
 avg_time_per_model.columns = ["Model", "Average_Classification_Time_ms"]
