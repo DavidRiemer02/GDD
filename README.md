@@ -8,12 +8,14 @@
 
 ```text
 ├── UserData/                 
-│   ├── realData/             # User-uploaded real datasets
-│   └── fakeData/             # User-uploaded fake datasets
-├── models/                   # Trained Random Forest classifiers
-├── config.json               # Configuration file for paths and Metanome settings
-├── GDD_Pipeline.ipynb        # Main Jupyter Notebook interface for using the detector
-
+│   └── realData/                         # This is where the User puts the data
+├── models/                               # Trained Random Forest classifiers
+├── NoteBook_UI/              
+│   └── config.json                       # Configuration file for paths and Metanome settings
+│   └── generatedDatasetDetector.jar      # Configuration file for paths and Metanome settings
+│   └── notebook_ui.py                    # Contains relevant Code for Juypter NoteBook
+├── GDD_Pipeline.ipynb                    # Main Jupyter Notebook interface for using the detector
+└── README.md
 
 
 Open GDD_pipeline.ipynb and follow the steps provided in the notebook
