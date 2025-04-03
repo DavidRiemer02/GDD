@@ -26,7 +26,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "RandomF
 import json
 
 # Load config from JSON
-with open("NoteBook_UIconfig.json", "r") as f:
+with open("NoteBook_UI/config.json", "r") as f:
     config = json.load(f)
 
 # Access variables

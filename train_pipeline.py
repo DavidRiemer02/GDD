@@ -10,7 +10,7 @@ from RandomForest.Utils.readlargeData import read_large_data
 java_exe = "C:\\Users\\David\\.jdks\\openjdk-18.0.2.1\\bin\\java"
 base_dir = "TrainingData"
 data_types = ["fakeData", "realData"]
-metanome_jar = "generatedDatasetDetector.jar"
+metanome_jar = "NoteBook_UI/generatedDatasetDetector.jar"
 java_memory = "-Xmx32G"
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
