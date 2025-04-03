@@ -2,6 +2,7 @@ import csv
 import numpy as np
 import time
 import os
+import sys
 
 def clean_csv(input_file_path, output_file_path, enforce_consistent_columns=True):
     """
@@ -18,6 +19,8 @@ def clean_csv(input_file_path, output_file_path, enforce_consistent_columns=True
     os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
     encodings_to_try = ['utf-8-sig', 'utf-8', 'ISO-8859-1', 'cp1252']
     start_time = time.time()
+    csv.field_size_limit(sys.maxsize)
+
 
     for encoding in encodings_to_try:
         try:

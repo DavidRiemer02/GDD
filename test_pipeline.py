@@ -31,14 +31,12 @@ with open("config.json", "r") as f:
 
 # Access variables
 java_exe = config["java_exe"]
-test_base_dir_real = config["test_base_dir_real"]
-test_base_dir_fake = config["test_base_dir_fake"]
+test_base_dir_real = config["test_base_dir"]
 metanome_jar = config["metanome_jar"]
 java_memory = config["java_memory"]
 
 # Results directory
 test_result_dir_real = os.path.join(test_base_dir_real, "metanomeResults")
-test_result_dir_fake = os.path.join(test_base_dir_fake, "metanomeResults")
 
 
 # ---- Helper Functions ---- #
@@ -123,8 +121,7 @@ def get_all_csv_files(base_dir):
 def test_pipeline():
     print("Starting full test pipeline with metrics...")
 
-    for base_dir, result_dir in [(test_base_dir_real, test_result_dir_real),
-                                 (test_base_dir_fake, test_result_dir_fake)]:
+    for base_dir, result_dir in [(test_base_dir_real, test_result_dir_real)]:
         os.makedirs(result_dir, exist_ok=True)
         clean_all_csv_files(base_dir)
         for csv_file in get_all_csv_files(base_dir):
@@ -133,8 +130,6 @@ def test_pipeline():
     detector = GeneratedDatasetDetector()
     detector.classify_new_datasets(test_base_dir_real)
     #Delete Directory UserData/fakeData
-    os.rmdir("UserData/fakeData/metanomeResults")
-    os.rmdir("UserData/fakeData")
     os.rmdir("UserData/metanomeResults")
 
 

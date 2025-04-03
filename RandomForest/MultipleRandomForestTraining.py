@@ -226,7 +226,7 @@ class GeneratedDatasetDetector:
     import csv
     from datetime import datetime
 
-    classification_log_path = os.path.join("performance", "classification_log_sample.csv")
+    classification_log_path = os.path.join("performance", "classification_log.csv")
     os.makedirs("performance", exist_ok=True)
 
     def classify_new_datasets(self, base_folder, model_name="random_forest_grid_search.pkl"):
