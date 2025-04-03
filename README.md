@@ -7,12 +7,14 @@
 ## 📁 Project Structure
 
 ```text
-├── UserData/                 
-│   └── realData/                         # This is where the User puts the data
+├── UserData/
+│   ├── archive/                          # Zips are moved here
+│   ├── realData/                         # This is where the User puts the data               
+│   └── results/                          # Results file is stores here
 ├── models/                               # Trained Random Forest classifiers
 ├── NoteBook_UI/              
-│   └── config.json                       # Configuration file for paths and Metanome settings
-│   └── generatedDatasetDetector.jar      # Configuration file for paths and Metanome settings
+│   ├── config.json                       # Configuration file for paths and Metanome settings
+│   ├── generatedDatasetDetector.jar      # Configuration file for paths and Metanome settings
 │   └── notebook_ui.py                    # Contains relevant Code for Juypter NoteBook
 ├── GDD_Pipeline.ipynb                    # Main Jupyter Notebook interface for using the detector
 └── README.md
