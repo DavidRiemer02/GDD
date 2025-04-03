@@ -1,6 +1,0 @@
-{
-    "java_exe": "C:\\Users\\David\\.jdks\\openjdk-18.0.2.1\\bin\\java",
-    "test_base_dir": "UserData/realData",
-    "metanome_jar": "generatedDatasetDetector.jar",
-    "java_memory": "-Xmx8G"
-}
