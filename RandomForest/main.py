@@ -1,6 +1,6 @@
 import os
 import argparse
-from MultipleRandomForestTraining import GeneratedDatasetDetector  # Import the class
+from MultipleRandomForestTraining import GeneratedDatasetDetector  
 
 def main():
     parser = argparse.ArgumentParser(description='Classify a folder of datasets as Real or Fake.')
@@ -19,7 +19,7 @@ def main():
         file_path = os.path.join(args.folder_path, file_name)
         if file_name.endswith('.csv') and os.path.isfile(file_path):
             print(f"\n🔍 Processing {file_name}...")
-            detector.classify_new_dataset(file_path)  # Call method from the class
+            detector.classify_new_dataset(file_path)
 
 if __name__ == "__main__":
     main()

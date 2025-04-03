@@ -36,5 +36,3 @@ def read_large_data(input_file, output_file_path, sample_size: int = 5000):
 
     # Clean the overwritten file
     clean_csv(input_file_path=input_file, output_file_path=output_file_path)
-
-    print("Processing is complete and file has been overwritten with sampled data.")

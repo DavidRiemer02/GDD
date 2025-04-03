@@ -1,8 +1,0 @@
-{
-    "Table": "estat_sbs_sc_ovw_filtered_en",
-    "FDs_count": 11,
-    "UCCs_count": 11,
-    "NumberOfColumns": 11,
-    "Max_FD_Length": 1,
-    "INDs_count": 110
-}

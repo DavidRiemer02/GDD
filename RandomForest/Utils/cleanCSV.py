@@ -72,15 +72,13 @@ def clean_csv(input_file_path, output_file_path, enforce_consistent_columns=True
                     log_writer.writerow(["InputFile", "OutputFile", "EncodingUsed", "SizeBytes", "Rows", "Columns", "CleanTimeSeconds"])
                 log_writer.writerow(log_entry)
 
-            print(f"✅ Cleaned CSV saved to: {output_file_path}")
+            print(f"Cleaned CSV saved to: {output_file_path}")
             return
 
         except UnicodeDecodeError:
             continue
         except Exception as e:
-            print(f"⚠️ Error processing file with encoding {encoding}: {e}")
+            print(f"Error processing file with encoding {encoding}: {e}")
             return
 
-    print("❌ Failed to decode the file with known encodings. Please check encoding manually.")
-
-clean_csv("TrainingData/fakeData/anne_car_data_1.csv", "results/result.csv")
+    print("Failed to decode the file with known encodings. Please check encoding manually.")

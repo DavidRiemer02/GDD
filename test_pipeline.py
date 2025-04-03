@@ -48,11 +48,9 @@ def clean_csv_in_place(file_path):
 
 def clean_all_csv_files(directory):
     """Recursively cleans all CSV files in a directory and its subdirectories."""
-    print(f"Cleaning CSV files in {directory} ...")
     csv_files = glob.glob(os.path.join(directory, "**", "*.csv"), recursive=True)
     
     for csv_file in csv_files:
-        print(f"Cleaning {csv_file} ...")
         clean_csv_in_place(csv_file)
 
 
@@ -75,7 +73,7 @@ def run_metanome_if_needed(dataset_path, result_dir):
     result_file = os.path.join(metanome_result_folder, f"{base_name}_Results.json")
 
     if os.path.exists(result_file):
-        print(f"[{timestamp()}] ✅ Metanome result already exists: {result_file}, skipping.")
+        print(f"[{timestamp()}] Metanome result already exists: {result_file}, skipping.")
         return
 
     try:
@@ -83,11 +81,11 @@ def run_metanome_if_needed(dataset_path, result_dir):
         df = pd.read_csv(dataset_path, nrows=5)
         num_columns = df.shape[1]
     except Exception as e:
-        print(f"[{timestamp()}] ⚠️ Failed to read {dataset_path} for metadata: {e}")
+        print(f"[{timestamp()}] Failed to read {dataset_path} for metadata: {e}")
         return
 
     # Run Metanome and log time
-    print(f"[{timestamp()}] 🚀 Running Metanome on: {dataset_path}")
+    print(f"[{timestamp()}] Running Metanome on: {dataset_path}")
     start_time = time.time()
     command = [
         java_exe, java_memory, "-jar", metanome_jar,
@@ -108,18 +106,62 @@ def run_metanome_if_needed(dataset_path, result_dir):
                 timestamp(), dataset_path, f"{file_size_mb:.2f}", num_columns, duration_ms, result_file
             ])
 
-        print(f"[{timestamp()}] ✅ Metanome completed in {duration_ms} ms")
+        print(f"[{timestamp()}] Metanome completed in {duration_ms} ms")
 
     except subprocess.CalledProcessError as e:
-        print(f"[{timestamp()}] ❌ Error running Metanome on {dataset_path}: {e}")
+        print(f"[{timestamp()}] Error running Metanome on {dataset_path}: {e}")
 
 
 def get_all_csv_files(base_dir):
     return glob.glob(os.path.join(base_dir, "**", "*.csv"), recursive=True)
 
+def write_run_metadata(classification_results):
+    summary_dir = "UserData/results"
+    os.makedirs(summary_dir, exist_ok=True)
+    summary_file_path = os.path.join(summary_dir, "run_summary.txt")
+
+    summary_lines = []
+    summary_lines.append(f"Run Timestamp: {timestamp()}")
+    summary_lines.append("Run Configuration:")
+    summary_lines.append(f"  Java Executable: {java_exe}")
+    summary_lines.append(f"  Metanome JAR: {metanome_jar}")
+    summary_lines.append(f"  Java Memory: {java_memory}")
+    summary_lines.append(f"  Base Dataset Directory: {test_base_dir_real}")
+    summary_lines.append("")
+
+    summary_lines.append("Datasets Processed:")
+
+    dataset_count = 0
+    for csv_file in get_all_csv_files(test_base_dir_real):
+        dataset_count += 1
+        rel_path = os.path.relpath(csv_file, start=test_base_dir_real)
+        try:
+            file_size_mb = os.path.getsize(csv_file) / (1024 * 1024)
+            df = pd.read_csv(csv_file, nrows=5)
+            num_columns = df.shape[1]
+            summary_lines.append(f"  - {rel_path} | {file_size_mb:.2f} MB | {num_columns} columns")
+        except Exception as e:
+            summary_lines.append(f"  - {rel_path} | ERROR: {str(e)}")
+
+    summary_lines.append("")
+    summary_lines.append(f"Total datasets classified: {dataset_count}")
+
+    summary_lines.append("")
+    summary_lines.append("Classification Results:")
+    for file_path, label in classification_results:
+        rel_path = os.path.relpath(file_path, start=test_base_dir_real)
+        summary_lines.append(f"  - {rel_path}: {label}")
+
+    # Write summary to file
+    with open(summary_file_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(summary_lines))
+
+    print(f"[{timestamp()}] Summary written to {summary_file_path}")
+
+
 
 def test_pipeline():
-    print("Starting full test pipeline with metrics...")
+    print("-----Starting full classification pipeline with metrics-----")
 
     for base_dir, result_dir in [(test_base_dir_real, test_result_dir_real)]:
         os.makedirs(result_dir, exist_ok=True)
@@ -128,9 +170,14 @@ def test_pipeline():
             run_metanome_if_needed(csv_file, result_dir)
 
     detector = GeneratedDatasetDetector()
-    detector.classify_new_datasets(test_base_dir_real)
+    classification_results = detector.classify_new_datasets(test_base_dir_real)
+    write_run_metadata(classification_results)
     #Delete Directory UserData/fakeData
-    os.rmdir("UserData/metanomeResults")
+    #Delete MetanomeResults Directory if exists
+    if os.path.exists("UserData/metanomeResults"):
+        os.rmdir("UserData/metanomeResults")
+
+    print("-----Classification completed-----")
 
 
     

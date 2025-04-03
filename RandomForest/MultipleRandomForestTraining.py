@@ -295,7 +295,7 @@ class GeneratedDatasetDetector:
                         prediction = model.predict(X_scaled)[0]
                         label = "real" if prediction == 1 else "fake"
 
-                        predictions.append(label)
+                        predictions.append((csv_file, label))
 
                         end_time = time.time()
                         duration_ms = int((end_time - start_time) * 1000)
@@ -330,7 +330,7 @@ class GeneratedDatasetDetector:
 if __name__ == "__main__":
     detector = GeneratedDatasetDetector()
     param_grid = [
-        (500, 1, 20),
+        (500, 1, 20),      #Define Tree
         (500, 25, 5),
         (500, 100, 10),    # Small dataset setup
         (2000, 500, 20),   # Medium dataset setup
