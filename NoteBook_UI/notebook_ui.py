@@ -68,7 +68,7 @@ def config_editor(config_path="NoteBook_UI/config.json"):
         value=config_text,
         placeholder='Edit JSON config here...',
         description='Config:',
-        layout={'width': '100%', 'height': '200px'}
+        layout={'width': '100%', 'height': '100px'}
     )
 
     save_button = Button(description="Save Config", button_style="success")
