@@ -39,7 +39,7 @@ def clean_all_csv_files(directory):
             print(f"[{timestamp()}] Cleaning {csv_file} ...")
             clean_csv_in_place(csv_file)
         except Exception as e:
-            print(f"⚠️ Error cleaning {csv_file}: {e}")
+            print(f"Error cleaning {csv_file}: {e}")
 
 
 import time
@@ -65,7 +65,7 @@ def run_metanome_if_needed(dataset_path, result_dir):
         df = pd.read_csv(dataset_path, nrows=5)
         num_columns = df.shape[1]
     except Exception as e:
-        print(f"[{timestamp()}] ⚠️ Failed to read {dataset_path} for metadata: {e}")
+        print(f"[{timestamp()}] Failed to read {dataset_path} for metadata: {e}")
         return
 
     # --- Run Metanome and time it ---

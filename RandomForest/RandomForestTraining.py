@@ -106,7 +106,7 @@ def classify_new_dataset(file_path):
     try:
         new_df = pd.read_csv(file_path)
         if new_df.empty:
-            print("⚠️ The dataset is empty and cannot be classified.")
+            print("The dataset is empty and cannot be classified.")
             return
         
         # Extract features
@@ -126,7 +126,7 @@ def classify_new_dataset(file_path):
         print(f"✅ Classification Result for original model: {label}")
 
     except Exception as e:
-        print(f"⚠️ Error during classification for original model: {e}")
+        print(f"Error during classification for original model: {e}")
 
 
 if __name__ == "__main__":

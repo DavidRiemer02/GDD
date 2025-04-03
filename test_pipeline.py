@@ -130,7 +130,6 @@ def write_run_metadata(classification_results):
     summary_lines.append("")
 
     summary_lines.append("Datasets Processed:")
-
     dataset_count = 0
     for csv_file in get_all_csv_files(test_base_dir_real):
         dataset_count += 1
@@ -141,18 +140,18 @@ def write_run_metadata(classification_results):
             num_columns = df.shape[1]
             summary_lines.append(f"  - {rel_path} | {file_size_mb:.2f} MB | {num_columns} columns")
         except Exception as e:
-            summary_lines.append(f"  - {rel_path} | ERROR: {str(e)}")
+            msg = f"  - {rel_path} | ERROR: {str(e)}"
+            summary_lines.append(msg)
+            error_log.append(msg)
 
     summary_lines.append("")
     summary_lines.append(f"Total datasets classified: {dataset_count}")
-
     summary_lines.append("")
+
     summary_lines.append("Classification Results:")
     for file_path, label in classification_results:
         rel_path = os.path.relpath(file_path, start=test_base_dir_real)
         summary_lines.append(f"  - {rel_path}: {label}")
-
-    # Write summary to file
     with open(summary_file_path, "w", encoding="utf-8") as f:
         f.write("\n".join(summary_lines))
 

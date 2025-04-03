@@ -27,7 +27,7 @@ def read_large_data(input_file, output_file_path, sample_size: int = 5000):
 
     if len(final_data) <= sample_size:
         sampled_data = final_data
-        print(f"⚠️ Only {len(final_data)} rows found. Sampling skipped.")
+        print(f"Only {len(final_data)} rows found. Sampling skipped.")
     else:
         sampled_data = final_data.sample(n=sample_size, random_state=42)
 

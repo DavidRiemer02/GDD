@@ -93,7 +93,7 @@ class GeneratedDatasetDetector:
                 "max_fd_length": data.get("Max_FD_Length", 0)
             }
         except Exception as e:
-            print(f"⚠️ Error reading Metanome JSON {json_path}: {e}")
+            print(f"Error reading Metanome JSON {json_path}: {e}")
             return dict.fromkeys(['fds_ratio', 'uccs_ratio', 'inds_ratio', 'max_fd_length_norm',
                                   'fds_count', 'uccs_count', 'inds_count', 'max_fd_length'], 0)
 
@@ -125,7 +125,7 @@ class GeneratedDatasetDetector:
                 try:
                     df = pd.read_csv(csv_file, on_bad_lines='skip', engine='python')
                 except Exception as e:
-                    print(f"⚠️ Could not read {csv_file}: {e}")
+                    print(f"Could not read {csv_file}: {e}")
                     continue
 
                 if len(df) > sample_size:
@@ -141,10 +141,10 @@ class GeneratedDatasetDetector:
                     combined_features["label"] = label
                     feature_list.append(combined_features)
                 else:
-                    print(f"⚠️ No Metanome JSON found for {dataset_name}. Skipping...")
+                    print(f"No Metanome JSON found for {dataset_name}. Skipping...")
 
         if not feature_list:
-            print("⚠️ No valid datasets found! Training aborted.")
+            print("No valid datasets found! Training aborted.")
             return
 
         feature_df = pd.concat(feature_list, ignore_index=True)
@@ -318,7 +318,8 @@ class GeneratedDatasetDetector:
                         print(f"{csv_file} classified as {label} in {duration_ms} ms.")
 
                     except Exception as dataset_error:
-                        print(f"⚠️ Error classifying {csv_file}: {dataset_error}")
+                        print(f"Error classifying {csv_file}: {dataset_error}")
+                        
 
         except Exception as e:
             print(f"❌ Error during classification: {e}")

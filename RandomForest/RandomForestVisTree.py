@@ -43,7 +43,7 @@ def visualize_first_decision_tree(model_path):
     
     # Ensure feature name count matches model input dimensions
     if len(feature_names) != len(rf_classifier.feature_importances_):
-        print(f"⚠️ Warning: Feature name count ({len(feature_names)}) does not match model input ({len(rf_classifier.feature_importances_)})")
+        print(f"Warning: Feature name count ({len(feature_names)}) does not match model input ({len(rf_classifier.feature_importances_)})")
         feature_names = [f"Feature {i}" for i in range(len(rf_classifier.feature_importances_))]  # Assign default names
     
     # Select the first tree in the ensemble
