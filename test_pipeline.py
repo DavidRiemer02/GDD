@@ -142,7 +142,6 @@ def write_run_metadata(classification_results):
         except Exception as e:
             msg = f"  - {rel_path} | ERROR: {str(e)}"
             summary_lines.append(msg)
-            error_log.append(msg)
 
     summary_lines.append("")
     summary_lines.append(f"Total datasets classified: {dataset_count}")

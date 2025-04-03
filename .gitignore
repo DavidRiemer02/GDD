@@ -10141,15 +10141,11 @@ feature_averages_log.png
 Zwischenablage/naio_10_fcp_ii1.csv
 results/result.csv
 results/sample_5000.csv
-Visualize_3dplot.py
-Visualize_Feature_Averages.py
 SDV_Generator.py
 performance/classification_log_sample.csv
 performance/classification_log.csv
 performance/cleanlog.csv
-Visualize/Visualize_Test_Performance.py
 data_generator.py
-Visualize_Feature_Averages.py
 my_test_pipeline.py
 count.py
 performance/cleanlog.csv
@@ -10164,5 +10160,6 @@ performance/cleanlog.csv
 UserData/realData/estat_sbs_sc_ovw_filtered_en.csv
 performance/classification_log.csv
 performance/cleanlog.csv
-* . c s v  
+* . c s v 
+ 
  
