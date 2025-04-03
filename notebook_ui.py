@@ -86,3 +86,31 @@ def config_editor(config_path="config.json"):
 
     save_button.on_click(save_config)
     return VBox([config_area, save_button, status_label])
+
+import os
+import subprocess
+import sys
+
+def install_requirements():
+    requirements_path = "requirements.txt"
+    
+    if not os.path.exists(requirements_path):
+        print(f"Requirements file not found at {requirements_path}")
+        return
+
+    with open(requirements_path, "r", encoding="utf-8", errors="replace") as file:
+        for line_number, line in enumerate(file, 1):
+            if '\x00' in line:
+                print(f"Skipping line {line_number}: contains null character.")
+                continue
+            package = line.strip()
+            if not package or package.startswith("#"):
+                continue
+            print(f"Installing: {package}")
+            try:
+                subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+            except subprocess.CalledProcessError as e:
+                print(f"❌ Failed to install {package}: {e}")
+
+    print("All specified packages processed.")
+
