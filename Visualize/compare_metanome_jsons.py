@@ -24,26 +24,27 @@ folder2 = "nosampling/TrainingData"
 data1 = collect_json_data(folder1)
 data2 = collect_json_data(folder2)
 
-# Compare JSON stats and compute differences
-diff_rows = []
-metrics = ["FDs_count", "UCCs_count", "INDs_count", "Max_FD_Length"]
+# Compute absolute differences (for MAE)
+mae_rows = []
+metrics = ["FDs_count", "UCCs_count", "INDs_count"]
 
 for file in set(data1.keys()) & set(data2.keys()):
     d1, d2 = data1[file], data2[file]
-    diff = {metric + "_diff": d2.get(metric, 0) - d1.get(metric, 0) for metric in metrics}
-    diff["File"] = file
-    diff_rows.append(diff)
+    abs_diff = {metric + "_abs_diff": abs(d2.get(metric, 0) - d1.get(metric, 0)) for metric in metrics}
+    abs_diff["File"] = file
+    mae_rows.append(abs_diff)
 
 # Create DataFrame
-df_diff = pd.DataFrame(diff_rows)
+df_mae = pd.DataFrame(mae_rows)
 
-# --- Average Difference Bar Plot ---
-avg_diff = df_diff.drop(columns=["File"]).mean().rename(lambda x: x.replace("_diff", ""))
+# Calculate MAE (mean of absolute differences)
+mae = df_mae.drop(columns=["File"]).mean().rename(lambda x: x.replace("_abs_diff", ""))
 
+# Plot MAE
 plt.figure(figsize=(8, 5))
-sns.barplot(x=avg_diff.index, y=avg_diff.values, color="lightblue")
-plt.title("Average Difference per Metric (No Sampling - Sampling)")
-plt.ylabel("Average Difference")
+sns.barplot(x=mae.index, y=mae.values, color="lightblue")
+plt.title("Mean Absolute Error per Metric (No Sampling vs Sampling)")
+plt.ylabel("Mean Absolute Error")
 plt.xlabel("Metric")
 plt.grid(axis='y')
 plt.tight_layout()

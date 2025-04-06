@@ -90,9 +90,28 @@ print(classification_report(y_test, clf.predict(X_test), target_names=["Fake", "
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.scatter(X_test[:,0], X_test[:,1], X_test[:,2], c=y_test, cmap='coolwarm')
-plt.title("UMAP-Embedded Test Datasets")
+
+# Create masks
+real_mask = y_test == 1
+fake_mask = y_test == 0
+
+# Plot data
+ax.scatter(X_test[real_mask, 0], X_test[real_mask, 1], X_test[real_mask, 2],
+           c='lightblue', label='Real', alpha=0.9)
+ax.scatter(X_test[fake_mask, 0], X_test[fake_mask, 1], X_test[fake_mask, 2],
+           c='pink', label='Fake', alpha=0.9)
+
+# Title and legend
+ax.set_title("3D UMAP Projection: Real vs Fake Data")
+ax.legend(title="Label")
+
+# Remove the numbers (ticks) on each axis
+ax.set_xticklabels([])
+ax.set_yticklabels([])
+ax.set_zticklabels([])
 plt.show()
+

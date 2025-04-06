@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.patches import Patch
 from mpl_toolkits.mplot3d import Axes3D
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from Umap.UMAPColumnEmbedder import UMAPColumnEmbedder
 
 # === CONFIG ===

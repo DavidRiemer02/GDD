@@ -68,7 +68,7 @@ def config_editor(config_path="NoteBook_UI/config.json"):
         value=config_text,
         placeholder='Edit JSON config here...',
         description='Config:',
-        layout={'width': '100%', 'height': '100px'}
+        layout={'width': '100%', 'height': '120px'}
     )
 
     save_button = Button(description="Save Config", button_style="success")
@@ -113,4 +113,55 @@ def install_requirements():
                 print(f"❌ Failed to install {package}: {e}")
 
     print("All specified packages processed.")
+import json
+import ipywidgets as widgets
+from IPython.display import display
 
+def dropdown_widget():
+
+    # List of available models
+    model_options = [
+        "random_forest_grid_search.pkl",
+        "random_forest_s500_n1_d20.pkl",
+        "random_forest_s500_n25_d5.pkl",
+        "random_forest_s500_n100_d10.pkl",
+        "random_forest_s2000_n500_d20.pkl",
+        "random_forest_s5000_n1000_d50.pkl",
+        "random_forest_s10000_n2000_d100.pkl"
+    ]
+
+    # Dropdown widget
+    model_dropdown = widgets.Dropdown(
+        options=model_options,
+        value="random_forest_grid_search.pkl",
+        description="Select Model:",
+        style={'description_width': 'initial'}
+    )
+
+    # Display the dropdown
+    display(model_dropdown)
+
+    # Button to confirm and update JSON
+    save_button = widgets.Button(description="Update Config")
+
+    # Output area
+    output = widgets.Output()
+    display(save_button, output)
+
+    # JSON template
+    config = {
+        "java_exe": "C:\\Users\\David\\.jdks\\openjdk-18.0.2.1\\bin\\java",
+        "test_base_dir": "UserData/realData",
+        "metanome_jar": "NoteBook_UI/generatedDatasetDetector.jar",
+        "java_memory": "-Xmx8G",
+        "model": "random_forest_grid_search.pkl"  # Default
+    }
+
+    # Function to update JSON with selected model
+    def update_config(b):
+        config["model"] = model_dropdown.value
+        with output:
+            output.clear_output()
+            print("Model updated")
+
+    save_button.on_click(update_config)

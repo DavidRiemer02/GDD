@@ -154,7 +154,6 @@ class GeneratedDatasetDetector:
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        start_time = time.time()
 
         if use_grid_search:
             param_grid = {
@@ -165,16 +164,23 @@ class GeneratedDatasetDetector:
 
             rf = RandomForestClassifier(random_state=42)
             grid_search = GridSearchCV(rf, param_grid, cv=5, n_jobs=-1, scoring='accuracy')
-            grid_search.fit(X_scaled, y)
-            best_model = grid_search.best_estimator_
 
+            # Step 1: Run Grid Search (not timed)
+            grid_search.fit(X_scaled, y)
+            print(f"🔎 Best Parameters: {grid_search.best_params_}")
+
+            # Step 2: Train best model on full data (timed)
+            best_params = grid_search.best_params_
+            best_model = RandomForestClassifier(random_state=42, **best_params)
+
+            start_time = time.time()
+            best_model.fit(X_scaled, y)
+            duration_ms = int((time.time() - start_time) * 1000)
+
+            # Save model and scaler
             model_name = "random_forest_grid_search.pkl"
             joblib.dump(best_model, os.path.join(self.model_dir, model_name))
             joblib.dump(scaler, os.path.join(self.model_dir, "scaler_grid_search.pkl"))
-            print(f"GridSearchCV completed. Best model saved as '{model_name}'")
-            print(f"🔎 Best Parameters: {grid_search.best_params_}")
-
-            duration_ms = int((time.time() - start_time) * 1000)
 
             with open(train_log_path, mode='a', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
@@ -331,8 +337,8 @@ class GeneratedDatasetDetector:
 if __name__ == "__main__":
     detector = GeneratedDatasetDetector()
     param_grid = [
-        (500, 1, 20),      #Define Tree
-        (500, 25, 5),
+        (500, 1, 20),      # Define Tree
+        (500, 25, 5),      # Small dataset setup
         (500, 100, 10),    # Small dataset setup
         (2000, 500, 20),   # Medium dataset setup
         (5000, 1000, 50),  # Large dataset setup
@@ -371,5 +377,5 @@ if __name__ == "__main__":
 
 
     # Train models with different settings
-    for sample_size, n_estimators, max_depth in param_grid:
-        detector.train_multiple_models("TrainingData/realData", "TrainingData/fakeData", sample_size, n_estimators, max_depth)
+    #for sample_size, n_estimators, max_depth in param_grid:
+        #detector.train_multiple_models("TrainingData/realData", "TrainingData/fakeData", sample_size, n_estimators, max_depth)

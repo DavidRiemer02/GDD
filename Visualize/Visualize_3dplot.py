@@ -122,6 +122,7 @@ color_map = {
 fig = plt.figure(figsize=(10, 8))
 ax = fig.add_subplot(111, projection='3d')
 colors = [color_map[l] for l in embedding_df['label']]
+
 # Create the scatter plot in 3D
 ax.scatter(
     embedding_df['Dim1'],
@@ -131,23 +132,24 @@ ax.scatter(
     s=50,
     alpha=0.7
 )
-#for idx in outlier_indices:
-    #row = embedding_df.iloc[idx]
-    #dataset_name = embedding_df.iloc[idx]['dataset']
-    #ax.text(row['Dim1'], row['Dim2'], row['Dim3'], dataset_name,
-            #fontsize=6, color='black', alpha=0.9)
 
+# ✅ Keep grid lines, but hide tick labels and ticks
+ax.set_xticklabels([])
+ax.set_yticklabels([])
+ax.set_zticklabels([])
+ax.tick_params(axis='both', which='both', length=0)  # hide ticks
+
+# ✅ Keep pane lines (the cube grid)
+ax.xaxis._axinfo["grid"]["linewidth"] = 0.5
+ax.yaxis._axinfo["grid"]["linewidth"] = 0.5
+ax.zaxis._axinfo["grid"]["linewidth"] = 0.5
+
+# Title and legend
 ax.set_title('3D UMAP Projection: Real vs Fake Data', fontsize=20)
-
 legend_elements = [
     Patch(facecolor='lightblue', label='Real'),
     Patch(facecolor='pink', label='Fake')
 ]
-ax.legend(handles=legend_elements, title='Label')
-
-# Axis labels (optional)
-ax.set_xlabel('Dim1')
-ax.set_ylabel('Dim2')
-ax.set_zlabel('Dim3')
+ax.legend(handles=legend_elements, title="Label")
 
 plt.show()

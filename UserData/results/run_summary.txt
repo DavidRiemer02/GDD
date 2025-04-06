@@ -1,13 +1,14 @@
-Run Timestamp: 2025-04-03 18:11:22
+Run Timestamp: 2025-04-06 12:56:10
 Run Configuration:
   Java Executable: C:\Users\David\.jdks\openjdk-18.0.2.1\bin\java
   Metanome JAR: NoteBook_UI/generatedDatasetDetector.jar
   Java Memory: -Xmx8G
   Base Dataset Directory: UserData/realData
+  Model used: random_forest_grid_search.pkl
 
 Datasets Processed:
   - achievements.csv | 0.01 MB | 21 columns
-  - art.csv | 0.05 MB | 29 columns
+  - art.csv | 0.10 MB | 29 columns
   - bags.csv | 0.02 MB | 20 columns
   - bottoms.csv | 0.16 MB | 20 columns
   - construction.csv | 0.02 MB | 7 columns

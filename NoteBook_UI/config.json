@@ -2,5 +2,6 @@
     "java_exe": "C:\\Users\\David\\.jdks\\openjdk-18.0.2.1\\bin\\java",
     "test_base_dir": "UserData/realData",
     "metanome_jar": "NoteBook_UI/generatedDatasetDetector.jar",
-    "java_memory": "-Xmx8G"
+    "java_memory": "-Xmx8G",
+    "model": "random_forest_grid_search.pkl"
 }

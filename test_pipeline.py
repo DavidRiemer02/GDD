@@ -34,6 +34,7 @@ java_exe = config["java_exe"]
 test_base_dir_real = config["test_base_dir"]
 metanome_jar = config["metanome_jar"]
 java_memory = config["java_memory"]
+model = config["model"]
 
 # Results directory
 test_result_dir_real = os.path.join(test_base_dir_real, "metanomeResults")
@@ -52,6 +53,7 @@ def clean_all_csv_files(directory):
     
     for csv_file in csv_files:
         clean_csv_in_place(csv_file)
+        
 
 
 # Define performance logging directory and file
@@ -127,6 +129,8 @@ def write_run_metadata(classification_results):
     summary_lines.append(f"  Metanome JAR: {metanome_jar}")
     summary_lines.append(f"  Java Memory: {java_memory}")
     summary_lines.append(f"  Base Dataset Directory: {test_base_dir_real}")
+    summary_lines.append(f"  Model used: {model}")
+
     summary_lines.append("")
 
     summary_lines.append("Datasets Processed:")
@@ -168,7 +172,7 @@ def test_pipeline():
             run_metanome_if_needed(csv_file, result_dir)
 
     detector = GeneratedDatasetDetector()
-    classification_results = detector.classify_new_datasets(test_base_dir_real)
+    classification_results = detector.classify_new_datasets(test_base_dir_real, model_name=model)
     write_run_metadata(classification_results)
     #Delete Directory UserData/fakeData
     #Delete MetanomeResults Directory if exists
