@@ -130,9 +130,16 @@ def dropdown_widget():
         "random_forest_s10000_n2000_d100.pkl"
     ]
 
-    # Dropdown widget
     model_dropdown = widgets.Dropdown(
-        options=model_options,
+        options=[
+            ("random_forest_grid_search.pkl (recommended)", "random_forest_grid_search.pkl"),
+            ("random_forest_s500_n1_d20.pkl", "random_forest_s500_n1_d20.pkl"),
+            ("random_forest_s500_n25_d5.pkl", "random_forest_s500_n25_d5.pkl"),
+            ("random_forest_s500_n100_d10.pkl", "random_forest_s500_n100_d10.pkl"),
+            ("random_forest_s2000_n500_d20.pkl", "random_forest_s2000_n500_d20.pkl"),
+            ("random_forest_s5000_n1000_d50.pkl", "random_forest_s5000_n1000_d50.pkl"),
+            ("random_forest_s10000_n2000_d100.pkl", "random_forest_s10000_n2000_d100.pkl"),
+        ],
         value="random_forest_grid_search.pkl",
         description="Select Model:",
         style={'description_width': 'initial'}
@@ -160,8 +167,10 @@ def dropdown_widget():
     # Function to update JSON with selected model
     def update_config(b):
         config["model"] = model_dropdown.value
+        with open("NoteBook_UI/config.json", "w") as f:
+            json.dump(config, f, indent=4)
         with output:
             output.clear_output()
-            print("Model updated")
+            print("Model updated and saved to config.json:")
 
     save_button.on_click(update_config)
